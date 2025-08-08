@@ -1,0 +1,29 @@
+# Service Context for product-catalog (Example)
+service:
+  name: product-catalog
+  purpose: "Product catalog management with categories, inventory tracking, and search capabilities"
+  domain: "catalog"
+  
+business:
+  entities: ["Product", "Category", "Brand", "Inventory", "ProductImage", "ProductReview"]
+  rules: ["Product must have at least one category", "Inventory cannot be negative", "Product names must be unique within category"]
+  relationships: ["Product belongs to Category", "Product belongs to Brand", "Product has many Images", "Product has many Reviews"]
+  lifecycle: "Product creation → Category assignment → Inventory setup → Image upload → Review collection → Active product"
+  
+technical:
+  storage: "postgresql"
+  external_dependencies: ["image-service", "search-service", "notification-service"]
+  performance_requirements: "Handle 50,000 products, sub-200ms search response times"
+  security_requirements: "Read-only API, admin authentication for modifications, image validation"
+  
+api:
+  endpoints: ["GET /api/v1/products", "GET /api/v1/products/{id}", "GET /api/v1/categories", "GET /api/v1/brands", "GET /api/v1/products/search"]
+  authentication: "Public read access, admin JWT for modifications"
+  rate_limiting: "1000 requests per minute for public, 100 requests per minute for admin"
+  versioning: "v1"
+  
+integration:
+  event_publishing: ["product.created", "product.updated", "product.deleted", "inventory.updated", "review.added"]
+  event_consumption: ["order.placed", "image.uploaded", "search.indexed"]
+  monitoring: "Product metrics, search performance, inventory levels, review ratings"
+  logging: "Structured logging with product correlation IDs, audit trail for all catalog operations"

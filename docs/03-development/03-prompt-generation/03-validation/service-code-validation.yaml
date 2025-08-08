@@ -1,0 +1,414 @@
+# Validation System for Generated Code
+
+## 1. Code Quality Validation
+
+### Syntax Validation:
+syntax_validation:
+  go_syntax:
+    - "Check for valid Go syntax"
+    - "Validate import statements"
+    - "Check for unused imports"
+    - "Validate struct field tags"
+  
+  compilation:
+    - "Ensure code compiles without errors"
+    - "Check for type mismatches"
+    - "Validate function signatures"
+    - "Check for undefined variables"
+
+### Architecture Validation:
+architecture_validation:
+  clean_architecture:
+    - "Domain layer has no external dependencies"
+    - "Dependencies point inward"
+    - "Use interfaces, not concrete implementations"
+    - "Follow dependency inversion principle"
+  
+  layered_structure:
+    - "Domain layer contains only business logic"
+    - "Application layer orchestrates use cases"
+    - "Infrastructure layer implements interfaces"
+    - "Delivery layer handles HTTP concerns"
+  
+  cqrs_pattern:
+    - "Commands are separate from queries"
+    - "Commands modify state"
+    - "Queries are read-only"
+    - "Handlers are focused and single-purpose"
+
+### Naming Convention Validation:
+naming_validation:
+  service_naming:
+    - "Service names use kebab-case"
+    - "Directories use snake_case"
+    - "Titles use PascalCase"
+    - "Packages use camelCase"
+  
+  file_naming:
+    - "Go files use snake_case"
+    - "Structs and interfaces use PascalCase"
+    - "Methods and variables use camelCase"
+    - "Constants use UPPER_SNAKE_CASE"
+  
+  interface_naming:
+    - "Interfaces end with -er suffix"
+    - "Repository interfaces follow pattern"
+    - "Service interfaces are descriptive"
+    - "Handler interfaces are specific"
+
+## 2. Business Logic Validation
+
+### Entity Validation:
+entity_validation:
+  required_fields:
+    - "Entities have ID field"
+    - "Entities have CreatedAt field"
+    - "Entities have UpdatedAt field"
+    - "Fields have proper JSON tags"
+  
+  required_methods:
+    - "Entities have New() constructor"
+    - "Entities have Validate() method"
+    - "Entities have Update() method"
+    - "Methods have proper error handling"
+  
+  validation_rules:
+    - "ID validation is implemented"
+    - "Name validation is implemented"
+    - "Email validation is implemented"
+    - "Business rules are enforced"
+
+### Repository Validation:
+repository_validation:
+  interface_compliance:
+    - "Repository implements required methods"
+    - "Methods have correct signatures"
+    - "Error handling is consistent"
+    - "Context is used properly"
+  
+  implementation_quality:
+    - "Uses prepared statements"
+    - "Handles transactions properly"
+    - "Implements connection pooling"
+    - "Has proper error handling"
+
+### Service Validation:
+service_validation:
+  business_logic:
+    - "Business rules are implemented"
+    - "Validation is comprehensive"
+    - "Error handling is proper"
+    - "Logging is included"
+  
+  cqrs_compliance:
+    - "Commands are separate from queries"
+    - "Commands modify state"
+    - "Queries are read-only"
+    - "Handlers are focused"
+
+## 3. API Design Validation
+
+### HTTP Handler Validation:
+http_validation:
+  response_format:
+    - "Consistent response structure"
+    - "Proper HTTP status codes"
+    - "Error responses are standardized"
+    - "Success responses include data"
+  
+  request_handling:
+    - "Input validation is implemented"
+    - "Request logging is included"
+    - "Error handling is comprehensive"
+    - "Authentication is checked"
+  
+  routing:
+    - "Routes follow REST conventions"
+    - "URL patterns are consistent"
+    - "HTTP methods are appropriate"
+    - "Route grouping is logical"
+
+### Middleware Validation:
+middleware_validation:
+  required_middleware:
+    - "Authentication middleware"
+    - "Authorization middleware"
+    - "Logging middleware"
+    - "CORS middleware"
+  
+  optional_middleware:
+    - "Rate limiting middleware"
+    - "Compression middleware"
+    - "Security headers middleware"
+    - "Request ID middleware"
+
+## 4. Security Validation
+
+### Input Validation:
+security_validation:
+  input_sanitization:
+    - "All inputs are validated"
+    - "SQL injection is prevented"
+    - "XSS attacks are prevented"
+    - "File uploads are validated"
+  
+  authentication:
+    - "Authentication is implemented"
+    - "JWT tokens are validated"
+    - "Token expiration is handled"
+    - "Refresh tokens are supported"
+  
+  authorization:
+    - "Authorization is implemented"
+    - "Role-based access is enforced"
+    - "Resource ownership is validated"
+    - "Permission checks are included"
+
+### Data Protection:
+data_protection:
+  encryption:
+    - "Sensitive data is encrypted"
+    - "Passwords are hashed"
+    - "Tokens are secure"
+    - "API keys are protected"
+  
+  audit_logging:
+    - "Security events are logged"
+    - "Access attempts are tracked"
+    - "Data changes are audited"
+    - "Compliance requirements are met"
+
+## 5. Performance Validation
+
+### Database Validation:
+performance_validation:
+  database_optimization:
+    - "Queries are optimized"
+    - "Indexes are appropriate"
+    - "Connection pooling is configured"
+    - "Transactions are used properly"
+  
+  caching:
+    - "Caching is implemented"
+    - "Cache invalidation is handled"
+    - "Cache TTL is appropriate"
+    - "Cache failures are handled"
+  
+  api_optimization:
+    - "Response compression is enabled"
+    - "Pagination is implemented"
+    - "Rate limiting is configured"
+    - "Response caching is used"
+
+### Resource Management:
+resource_management:
+  memory_usage:
+    - "Memory leaks are prevented"
+    - "Garbage collection is optimized"
+    - "Large objects are handled properly"
+    - "Memory limits are respected"
+  
+  connection_management:
+    - "Database connections are pooled"
+    - "HTTP connections are reused"
+    - "External API connections are managed"
+    - "Connection timeouts are set"
+
+## 6. Testing Validation
+
+### Test Coverage:
+testing_validation:
+  unit_tests:
+    - "Test coverage is > 80%"
+    - "All public methods are tested"
+    - "Error conditions are tested"
+    - "Edge cases are covered"
+  
+  integration_tests:
+    - "Service interactions are tested"
+    - "API endpoints are tested"
+    - "Database operations are tested"
+    - "External dependencies are mocked"
+  
+  performance_tests:
+    - "Critical paths are benchmarked"
+    - "Load testing is performed"
+    - "Memory usage is monitored"
+    - "Response times are measured"
+
+### Test Quality:
+test_quality:
+  test_structure:
+    - "Tests use table-driven approach"
+    - "Test names are descriptive"
+    - "Test setup is clean"
+    - "Test teardown is proper"
+  
+  mocking:
+    - "External dependencies are mocked"
+    - "Mocks are realistic"
+    - "Mock expectations are clear"
+    - "Mock cleanup is handled"
+
+## 7. Documentation Validation
+
+### Code Documentation:
+documentation_validation:
+  api_documentation:
+    - "All endpoints are documented"
+    - "Request/response examples are included"
+    - "Error responses are documented"
+    - "Authentication requirements are clear"
+  
+  code_comments:
+    - "Public APIs are documented"
+    - "Complex logic is explained"
+    - "TODO comments are actionable"
+    - "Comments are up-to-date"
+  
+  architecture_documentation:
+    - "Service boundaries are documented"
+    - "Data flow is explained"
+    - "Integration points are described"
+    - "Deployment information is included"
+
+## 8. Configuration Validation
+
+### Environment Configuration:
+configuration_validation:
+  environment_variables:
+    - "All config options are documented"
+    - "Default values are appropriate"
+    - "Required variables are validated"
+    - "Sensitive data is handled securely"
+  
+  configuration_validation:
+    - "Configuration is validated on startup"
+    - "Invalid config causes startup failure"
+    - "Config changes are logged"
+    - "Environment-specific configs are used"
+
+## 9. Monitoring Validation
+
+### Observability:
+monitoring_validation:
+  logging:
+    - "Structured logging is used"
+    - "Log levels are appropriate"
+    - "Correlation IDs are included"
+    - "Sensitive data is not logged"
+  
+  metrics:
+    - "Key metrics are collected"
+    - "Metrics are properly labeled"
+    - "Metrics are exposed for scraping"
+    - "Business metrics are tracked"
+  
+  alerting:
+    - "Critical alerts are configured"
+    - "Alert thresholds are appropriate"
+    - "Alert notifications are set up"
+    - "False positives are minimized"
+
+## 10. Deployment Validation
+
+### Containerization:
+deployment_validation:
+  docker:
+    - "Dockerfile is optimized"
+    - "Multi-stage builds are used"
+    - "Non-root user is used"
+    - "Health checks are implemented"
+  
+  kubernetes:
+    - "Resource limits are set"
+    - "Health checks are configured"
+    - "Secrets are used properly"
+    - "Service discovery is configured"
+
+## Validation Rules Engine
+
+### Rule Categories:
+rule_categories:
+  critical:
+    - "Code must compile without errors"
+    - "All required fields must be present"
+    - "Security vulnerabilities must be fixed"
+    - "Critical business logic must be implemented"
+  
+  important:
+    - "Architecture patterns must be followed"
+    - "Naming conventions must be consistent"
+    - "Error handling must be comprehensive"
+    - "Testing must be adequate"
+  
+  recommended:
+    - "Performance optimizations should be applied"
+    - "Documentation should be complete"
+    - "Monitoring should be comprehensive"
+    - "Best practices should be followed"
+
+### Validation Levels:
+validation_levels:
+  strict:
+    - "All rules must pass"
+    - "No warnings allowed"
+    - "Perfect compliance required"
+  
+  standard:
+    - "Critical rules must pass"
+    - "Important rules should pass"
+    - "Recommended rules are encouraged"
+  
+  relaxed:
+    - "Critical rules must pass"
+    - "Other rules are suggestions"
+    - "Focus on functionality"
+
+### Validation Workflow:
+validation_workflow:
+  1. "Syntax and compilation check"
+  2. "Architecture compliance check"
+  3. "Business logic validation"
+  4. "Security validation"
+  5. "Performance validation"
+  6. "Testing validation"
+  7. "Documentation validation"
+  8. "Configuration validation"
+  9. "Monitoring validation"
+  10. "Deployment validation"
+
+### Validation Tools:
+validation_tools:
+  static_analysis:
+    - "golangci-lint for code quality"
+    - "go vet for static analysis"
+    - "go fmt for formatting"
+    - "go mod tidy for dependencies"
+  
+  testing:
+    - "go test for unit tests"
+    - "go test -race for race detection"
+    - "go test -cover for coverage"
+    - "go test -bench for benchmarks"
+  
+  security:
+    - "gosec for security scanning"
+    - "staticcheck for code analysis"
+    - "errcheck for error handling"
+    - "ineffassign for unused assignments"
+
+### Validation Reports:
+validation_reports:
+  format:
+    - "JSON format for machine processing"
+    - "HTML format for human reading"
+    - "Markdown format for documentation"
+    - "Console output for immediate feedback"
+  
+  content:
+    - "Summary of validation results"
+    - "Detailed error messages"
+    - "Suggestions for improvements"
+    - "Compliance score"
+    - "Action items for fixes"

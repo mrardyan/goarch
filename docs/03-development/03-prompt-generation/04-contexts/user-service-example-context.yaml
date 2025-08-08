@@ -1,0 +1,29 @@
+# Service Context for user-service (Example)
+service:
+  name: user-service
+  purpose: "User management with authentication, profile management, and role-based access control"
+  domain: "identity"
+  
+business:
+  entities: ["User", "Profile", "Role", "Permission", "UserSession"]
+  rules: ["Email must be unique", "Password must meet security requirements", "Users must have at least one role"]
+  relationships: ["User has one Profile", "User has many Roles", "Role has many Permissions", "User has many Sessions"]
+  lifecycle: "User registration → Email verification → Profile completion → Role assignment → Active user"
+  
+technical:
+  storage: "postgresql"
+  external_dependencies: ["email-service", "notification-service", "audit-service"]
+  performance_requirements: "Handle 10,000 concurrent users, sub-100ms response times"
+  security_requirements: "JWT authentication, password hashing, rate limiting, input validation"
+  
+api:
+  endpoints: ["GET /api/v1/users", "POST /api/v1/users", "PUT /api/v1/users/{id}", "DELETE /api/v1/users/{id}", "GET /api/v1/users/{id}/profile", "PUT /api/v1/users/{id}/profile"]
+  authentication: "JWT with refresh tokens"
+  rate_limiting: "100 requests per minute per user"
+  versioning: "v1"
+  
+integration:
+  event_publishing: ["user.created", "user.updated", "user.deleted", "user.verified", "profile.updated"]
+  event_consumption: ["email.verified", "notification.sent", "audit.required"]
+  monitoring: "User metrics, authentication success/failure rates, profile completion rates"
+  logging: "Structured logging with user correlation IDs, audit trail for all user operations"

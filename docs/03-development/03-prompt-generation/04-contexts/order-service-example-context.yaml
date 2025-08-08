@@ -1,0 +1,29 @@
+# Service Context for order-service (Example)
+service:
+  name: order-service
+  purpose: "Order management with payment processing, shipping tracking, and order lifecycle management"
+  domain: "commerce"
+  
+business:
+  entities: ["Order", "OrderItem", "Payment", "Shipping", "OrderStatus", "OrderHistory"]
+  rules: ["Order total must match sum of items", "Payment must be completed before shipping", "Order cannot be cancelled after shipping"]
+  relationships: ["Order has many Items", "Order has one Payment", "Order has one Shipping", "Order has many Status changes"]
+  lifecycle: "Order creation → Payment processing → Inventory reservation → Shipping preparation → Order fulfillment → Delivery"
+  
+technical:
+  storage: "postgresql"
+  external_dependencies: ["payment-service", "inventory-service", "shipping-service", "notification-service"]
+  performance_requirements: "Handle 5,000 concurrent orders, sub-500ms order creation"
+  security_requirements: "Customer authentication, payment encryption, order data protection"
+  
+api:
+  endpoints: ["POST /api/v1/orders", "GET /api/v1/orders/{id}", "PUT /api/v1/orders/{id}/cancel", "GET /api/v1/orders/{id}/status", "GET /api/v1/orders/{id}/tracking"]
+  authentication: "Customer JWT, admin JWT for management"
+  rate_limiting: "10 orders per minute per customer, 100 requests per minute for admin"
+  versioning: "v1"
+  
+integration:
+  event_publishing: ["order.created", "order.paid", "order.shipped", "order.delivered", "order.cancelled"]
+  event_consumption: ["payment.processed", "inventory.reserved", "shipping.created", "notification.sent"]
+  monitoring: "Order metrics, payment success rates, shipping times, customer satisfaction"
+  logging: "Structured logging with order correlation IDs, complete order audit trail"

@@ -1,0 +1,29 @@
+# Service Context for auth-service (Example)
+service:
+  name: auth-service
+  purpose: "Authentication and authorization with JWT tokens, OAuth integration, and session management"
+  domain: "security"
+  
+business:
+  entities: ["User", "Token", "Session", "Permission", "Role", "OAuthProvider"]
+  rules: ["Tokens must expire", "Sessions must be validated", "OAuth tokens must be refreshed", "Failed login attempts must be limited"]
+  relationships: ["User has many Tokens", "User has many Sessions", "User has many Roles", "Role has many Permissions"]
+  lifecycle: "User login → Token generation → Session creation → Token validation → Token refresh → Logout"
+  
+technical:
+  storage: "postgresql"
+  external_dependencies: ["user-service", "notification-service", "audit-service"]
+  performance_requirements: "Handle 20,000 concurrent authentications, sub-50ms token validation"
+  security_requirements: "Token encryption, rate limiting, brute force protection, secure session management"
+  
+api:
+  endpoints: ["POST /api/v1/auth/login", "POST /api/v1/auth/logout", "POST /api/v1/auth/refresh", "GET /api/v1/auth/validate", "POST /api/v1/auth/oauth/{provider}"]
+  authentication: "JWT tokens, OAuth providers"
+  rate_limiting: "5 login attempts per minute per IP, 1000 token validations per minute"
+  versioning: "v1"
+  
+integration:
+  event_publishing: ["user.authenticated", "user.logged_out", "token.refreshed", "login.failed"]
+  event_consumption: ["user.created", "user.updated", "notification.sent", "audit.required"]
+  monitoring: "Authentication success/failure rates, token usage, session metrics, OAuth provider performance"
+  logging: "Structured logging with user correlation IDs, security audit trail for all auth operations"

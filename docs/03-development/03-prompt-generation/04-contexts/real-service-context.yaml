@@ -1,0 +1,29 @@
+# Service Context for real-service
+service:
+  name: real-service
+  purpose: ""
+  domain: ""
+  
+business:
+  entities: []
+  rules: []
+  relationships: []
+  lifecycle: ""
+  
+technical:
+  storage: "postgresql"
+  external_dependencies: []
+  performance_requirements: ""
+  security_requirements: ""
+  
+api:
+  endpoints: []
+  authentication: ""
+  rate_limiting: ""
+  versioning: "v1"
+  
+integration:
+  event_publishing: false
+  event_consumption: false
+  monitoring: ""
+  logging: ""

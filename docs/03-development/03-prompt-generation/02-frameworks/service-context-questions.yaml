@@ -1,0 +1,408 @@
+# Question Framework for Prompt-Based Service Generation
+
+## Service Creation Questions
+
+### 1. Basic Information
+basic_info:
+  service_name:
+    question: "What is the name of the service?"
+    type: "string"
+    validation: "kebab-case format (e.g., user-service, product-catalog)"
+    examples: ["user-service", "product-catalog", "order-management"]
+    required: true
+  
+  service_purpose:
+    question: "What is the primary purpose of this service?"
+    type: "text"
+    validation: "2-200 characters"
+    required: true
+  
+  domain_context:
+    question: "What business domain does this service belong to?"
+    type: "string"
+    examples: ["User Management", "Product Catalog", "Order Processing", "Payment Processing"]
+    required: true
+
+### 2. Business Requirements
+business_requirements:
+  core_entities:
+    question: "What are the main business entities this service will manage?"
+    type: "array"
+    validation: "at least 1 entity"
+    examples: ["User", "Product", "Order", "Payment"]
+    required: true
+  
+  business_rules:
+    question: "What are the key business rules and validations?"
+    type: "text"
+    examples: ["Users must have unique email addresses", "Products must have valid prices", "Orders must have at least one item"]
+    required: false
+  
+  entity_relationships:
+    question: "What relationships exist between entities?"
+    type: "text"
+    examples: ["User has many Orders", "Product belongs to Category", "Order has many OrderItems"]
+    required: false
+  
+  entity_lifecycle:
+    question: "What is the typical lifecycle of the main entities?"
+    type: "text"
+    examples: ["User: Register → Verify → Active → Inactive", "Order: Created → Paid → Shipped → Delivered"]
+    required: false
+
+### 3. Technical Requirements
+technical_requirements:
+  data_storage:
+    question: "What type of data storage is required?"
+    type: "select"
+    options: ["PostgreSQL", "PostgreSQL + Redis", "PostgreSQL + Redis + External APIs"]
+    default: "PostgreSQL"
+    required: true
+  
+  external_dependencies:
+    question: "What external services or APIs will this service interact with?"
+    type: "array"
+    examples: ["Email Service", "Payment Gateway", "File Storage", "Notification Service"]
+    required: false
+  
+  performance_requirements:
+    question: "What are the performance expectations?"
+    type: "select"
+    options: ["Low (100 req/sec)", "Medium (1000 req/sec)", "High (10000 req/sec)", "Very High (100000 req/sec)"]
+    default: "Medium (1000 req/sec)"
+    required: true
+  
+  security_requirements:
+    question: "What security measures are needed?"
+    type: "array"
+    options: ["Authentication", "Authorization", "Data Encryption", "Rate Limiting", "Input Validation"]
+    default: ["Authentication", "Input Validation"]
+    required: true
+
+### 4. API Design
+api_design:
+  main_endpoints:
+    question: "What are the main API endpoints needed?"
+    type: "array"
+    examples: ["GET /users", "POST /users", "PUT /users/{id}", "DELETE /users/{id}"]
+    required: true
+  
+  authentication:
+    question: "What authentication/authorization is required?"
+    type: "select"
+    options: ["None", "API Key", "JWT Token", "OAuth2", "Custom"]
+    default: "JWT Token"
+    required: true
+  
+  rate_limiting:
+    question: "What rate limiting requirements exist?"
+    type: "select"
+    options: ["None", "Per IP (100 req/min)", "Per User (1000 req/min)", "Per API Key (10000 req/min)"]
+    default: "Per IP (100 req/min)"
+    required: true
+  
+  api_versioning:
+    question: "How should API versioning be handled?"
+    type: "select"
+    options: ["URL Path (/api/v1/)", "Header (Accept: application/vnd.api+json;version=1)", "Query Parameter (?version=1)"]
+    default: "URL Path (/api/v1/)"
+    required: true
+
+### 5. Integration Requirements
+integration_requirements:
+  event_publishing:
+    question: "Does this service need to publish events?"
+    type: "boolean"
+    default: false
+    required: true
+  
+  event_consumption:
+    question: "Does this service need to consume events?"
+    type: "boolean"
+    default: false
+    required: true
+  
+  monitoring:
+    question: "What metrics and monitoring are needed?"
+    type: "array"
+    options: ["Request Rate", "Response Time", "Error Rate", "Database Performance", "Custom Business Metrics"]
+    default: ["Request Rate", "Response Time", "Error Rate"]
+    required: true
+  
+  logging:
+    question: "What logging requirements exist?"
+    type: "array"
+    options: ["Request/Response Logging", "Error Logging", "Business Event Logging", "Performance Logging"]
+    default: ["Request/Response Logging", "Error Logging"]
+    required: true
+
+## Subdomain Creation Questions
+
+### 6. Subdomain Context
+subdomain_context:
+  subdomain_name:
+    question: "What is the name of the subdomain?"
+    type: "string"
+    validation: "kebab-case format"
+    examples: ["account", "profile", "inventory", "billing"]
+    required: true
+  
+  parent_service:
+    question: "Which service does this subdomain belong to?"
+    type: "string"
+    validation: "must be existing service"
+    required: true
+  
+  subdomain_purpose:
+    question: "What is the specific purpose of this subdomain?"
+    type: "text"
+    validation: "2-200 characters"
+    required: true
+
+### 7. Subdomain Business Logic
+subdomain_business_logic:
+  operations:
+    question: "What operations (CRUD) are needed for this subdomain?"
+    type: "array"
+    options: ["Create", "Read", "Update", "Delete", "Search", "Bulk Operations"]
+    default: ["Create", "Read", "Update", "Delete"]
+    required: true
+  
+  business_rules:
+    question: "What specific business rules apply to this subdomain?"
+    type: "text"
+    examples: ["Profile updates require email verification", "Inventory cannot go below zero"]
+    required: false
+  
+  validation_rules:
+    question: "What validation rules are specific to this subdomain?"
+    type: "text"
+    examples: ["Phone number must be valid format", "Address must include country"]
+    required: false
+
+### 8. Subdomain Integration
+subdomain_integration:
+  entity_relationships:
+    question: "How does this subdomain relate to existing entities?"
+    type: "text"
+    examples: ["Profile extends User entity", "Inventory belongs to Product entity"]
+    required: false
+  
+  data_flow:
+    question: "What is the data flow for this subdomain?"
+    type: "text"
+    examples: ["User creates profile → Profile validates → Profile saves to database"]
+    required: false
+  
+  api_integration:
+    question: "How should this subdomain be exposed via API?"
+    type: "select"
+    options: ["Separate endpoints (/api/v1/profiles)", "Nested endpoints (/api/v1/users/{id}/profile)", "Mixed approach"]
+    default: "Separate endpoints (/api/v1/profiles)"
+    required: true
+
+## Feature/Use Case Creation Questions
+
+### 9. Feature Context
+feature_context:
+  feature_name:
+    question: "What is the name of the feature/use case?"
+    type: "string"
+    validation: "kebab-case format"
+    examples: ["user-registration", "email-verification", "password-reset"]
+    required: true
+  
+  parent_service:
+    question: "Which service does this feature belong to?"
+    type: "string"
+    validation: "must be existing service"
+    required: true
+  
+  parent_subdomain:
+    question: "Which subdomain does this feature belong to? (optional)"
+    type: "string"
+    validation: "must be existing subdomain in parent service"
+    required: false
+  
+  feature_purpose:
+    question: "What is the specific purpose of this feature?"
+    type: "text"
+    validation: "2-200 characters"
+    required: true
+
+### 10. Feature Requirements
+feature_requirements:
+  user_stories:
+    question: "What user stories does this feature address?"
+    type: "text"
+    examples: ["As a user, I want to register so that I can access the system", "As a user, I want to reset my password so that I can regain access"]
+    required: true
+  
+  business_rules:
+    question: "What business rules apply to this feature?"
+    type: "text"
+    examples: ["Email must be unique", "Password must meet complexity requirements", "Verification token expires in 24 hours"]
+    required: false
+  
+  validation_rules:
+    question: "What validation is needed for this feature?"
+    type: "text"
+    examples: ["Email format validation", "Password strength validation", "Token expiration validation"]
+    required: false
+  
+  error_handling:
+    question: "What error scenarios should be handled?"
+    type: "text"
+    examples: ["Email already exists", "Invalid token", "Token expired", "Rate limit exceeded"]
+    required: false
+
+### 11. Technical Implementation
+technical_implementation:
+  api_endpoints:
+    question: "What API endpoints are needed for this feature?"
+    type: "array"
+    examples: ["POST /api/v1/auth/register", "POST /api/v1/auth/verify", "POST /api/v1/auth/reset-password"]
+    required: true
+  
+  database_changes:
+    question: "What database schema changes are required?"
+    type: "text"
+    examples: ["Add verification_token column to users table", "Add password_reset_tokens table"]
+    required: false
+  
+  external_dependencies:
+    question: "What external services or APIs are needed?"
+    type: "array"
+    examples: ["Email Service", "SMS Service", "Captcha Service"]
+    required: false
+  
+  security_requirements:
+    question: "What security measures are needed?"
+    type: "array"
+    options: ["Input Validation", "Rate Limiting", "CSRF Protection", "Secure Headers", "Data Encryption"]
+    default: ["Input Validation", "Rate Limiting"]
+    required: true
+
+### 12. Integration Points
+integration_points:
+  existing_entities:
+    question: "How does this feature integrate with existing entities?"
+    type: "text"
+    examples: ["Extends User entity with verification fields", "Creates new VerificationToken entity"]
+    required: false
+  
+  event_publishing:
+    question: "What events should this feature publish?"
+    type: "array"
+    examples: ["UserRegistered", "EmailVerified", "PasswordResetRequested"]
+    required: false
+  
+  event_consumption:
+    question: "What events should this feature consume?"
+    type: "array"
+    examples: ["EmailSent", "SMSDelivered"]
+    required: false
+  
+  ui_ux_requirements:
+    question: "What UI/UX considerations are needed?"
+    type: "text"
+    examples: ["Show loading states during API calls", "Display validation errors inline", "Provide clear success messages"]
+    required: false
+
+## Advanced Configuration Questions
+
+### 13. Performance Requirements
+performance_requirements:
+  expected_load:
+    question: "What is the expected load for this service/feature?"
+    type: "select"
+    options: ["Low (< 100 req/sec)", "Medium (100-1000 req/sec)", "High (1000-10000 req/sec)", "Very High (> 10000 req/sec)"]
+    default: "Medium (100-1000 req/sec)"
+    required: true
+  
+  caching_strategy:
+    question: "What caching strategy should be used?"
+    type: "select"
+    options: ["None", "In-Memory", "Redis", "CDN", "Multi-Level"]
+    default: "Redis"
+    required: true
+  
+  database_optimization:
+    question: "What database optimization is needed?"
+    type: "array"
+    options: ["Indexing", "Connection Pooling", "Read Replicas", "Query Optimization", "Partitioning"]
+    default: ["Indexing", "Connection Pooling"]
+    required: true
+
+### 14. Security Requirements
+security_requirements:
+  authentication_method:
+    question: "What authentication method should be used?"
+    type: "select"
+    options: ["None", "API Key", "JWT", "OAuth2", "SAML", "Custom"]
+    default: "JWT"
+    required: true
+  
+  authorization_model:
+    question: "What authorization model should be used?"
+    type: "select"
+    options: ["None", "Role-Based (RBAC)", "Attribute-Based (ABAC)", "Resource-Based", "Custom"]
+    default: "Role-Based (RBAC)"
+    required: true
+  
+  data_protection:
+    question: "What data protection measures are needed?"
+    type: "array"
+    options: ["Encryption at Rest", "Encryption in Transit", "Data Masking", "Audit Logging", "GDPR Compliance"]
+    default: ["Encryption in Transit", "Audit Logging"]
+    required: true
+
+### 15. Monitoring and Observability
+monitoring_requirements:
+  metrics:
+    question: "What metrics should be collected?"
+    type: "array"
+    options: ["Request Rate", "Response Time", "Error Rate", "Database Performance", "Business Metrics", "Custom Metrics"]
+    default: ["Request Rate", "Response Time", "Error Rate"]
+    required: true
+  
+  alerting:
+    question: "What alerts should be configured?"
+    type: "array"
+    options: ["High Error Rate", "High Response Time", "Service Down", "Database Issues", "Custom Alerts"]
+    default: ["High Error Rate", "Service Down"]
+    required: true
+  
+  logging:
+    question: "What logging level should be used?"
+    type: "select"
+    options: ["Error Only", "Info + Error", "Debug + Info + Error", "Trace + Debug + Info + Error"]
+    default: "Info + Error"
+    required: true
+
+## Question Flow Logic
+
+### Service Creation Flow:
+1. Basic Information (required)
+2. Business Requirements (required)
+3. Technical Requirements (required)
+4. API Design (required)
+5. Integration Requirements (optional)
+6. Advanced Configuration (optional)
+
+### Subdomain Creation Flow:
+1. Subdomain Context (required)
+2. Business Logic (required)
+3. Integration (required)
+
+### Feature Creation Flow:
+1. Feature Context (required)
+2. Requirements (required)
+3. Technical Implementation (required)
+4. Integration Points (optional)
+
+### Conditional Questions:
+- If external_dependencies > 0: Show external service configuration questions
+- If event_publishing = true: Show event configuration questions
+- If security_requirements includes "Authentication": Show auth configuration questions
+- If performance_requirements = "High" or "Very High": Show advanced performance questions

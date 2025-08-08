@@ -1,0 +1,371 @@
+# Core Generation Rules for Prompt-Based Service Generation
+
+## 1. Naming Conventions
+
+### Service Naming Rules:
+service_naming:
+  - pattern: "kebab-case for service names"
+    examples: ["user-service", "product-catalog", "order-management"]
+    validation: "must contain only lowercase letters, numbers, and hyphens"
+  
+  - pattern: "snake_case for directories"
+    conversion: "replace hyphens with underscores"
+    examples: ["user_service", "product_catalog"]
+  
+  - pattern: "PascalCase for titles"
+    conversion: "capitalize each word, remove hyphens"
+    examples: ["UserService", "ProductCatalog"]
+  
+  - pattern: "camelCase for packages"
+    conversion: "remove hyphens, lowercase first letter"
+    examples: ["userService", "productCatalog"]
+
+### File Naming Rules:
+file_naming:
+  - pattern: "snake_case for Go files"
+    examples: ["user_repository.go", "product_service.go"]
+  
+  - pattern: "PascalCase for structs and interfaces"
+    examples: ["UserRepository", "ProductService"]
+  
+  - pattern: "camelCase for methods and variables"
+    examples: ["createUser", "getProductByID"]
+
+## 2. Architecture Rules
+
+### Domain Layer Rules:
+domain_layer:
+  entities:
+    required_fields:
+      - "ID string"
+      - "CreatedAt time.Time"
+      - "UpdatedAt time.Time"
+    
+    required_methods:
+      - "New{Entity}() - constructor"
+      - "Validate() error - validation"
+      - "Update() - update logic"
+    
+    validation_rules:
+      - "ID must not be empty"
+      - "Name must be at least 2 characters"
+      - "Email must be valid format"
+  
+  repositories:
+    interface_pattern: "{Entity}Repository"
+    required_methods:
+      - "Create(ctx context.Context, entity *Entity) error"
+      - "GetByID(ctx context.Context, id string) (*Entity, error)"
+      - "Update(ctx context.Context, entity *Entity) error"
+      - "Delete(ctx context.Context, id string) error"
+      - "List(ctx context.Context, limit, offset int) ([]*Entity, error)"
+      - "Count(ctx context.Context) (int, error)"
+    
+    interface_separation:
+      reader: "{Entity}Reader"
+      writer: "{Entity}Writer"
+      full: "{Entity}Repository"
+  
+  types:
+    value_objects:
+      - "Email - email validation"
+      - "Name - name validation"
+      - "Phone - phone validation"
+      - "Money - currency handling"
+      - "DateTime - timezone handling"
+
+### Application Layer Rules:
+application_layer:
+  cqrs_pattern:
+    commands:
+      - "Create{Entity}Command"
+      - "Update{Entity}Command"
+      - "Delete{Entity}Command"
+    
+    queries:
+      - "Get{Entity}Query"
+      - "List{Entity}Query"
+      - "Search{Entity}Query"
+    
+    handlers:
+      - "Create{Entity}Handler"
+      - "Update{Entity}Handler"
+      - "Delete{Entity}Handler"
+      - "Get{Entity}Handler"
+      - "List{Entity}Handler"
+  
+  validation:
+    struct_tags:
+      - "required - field is required"
+      - "min=X - minimum length"
+      - "max=X - maximum length"
+      - "email - email format"
+      - "url - URL format"
+      - "uuid - UUID format"
+  
+  error_handling:
+    - "Use custom error types for domain errors"
+    - "Wrap errors with context"
+    - "Return appropriate HTTP status codes"
+    - "Log errors with structured logging"
+
+### Infrastructure Layer Rules:
+infrastructure_layer:
+  postgres:
+    repository_implementation:
+      - "Use prepared statements"
+      - "Implement connection pooling"
+      - "Handle transactions properly"
+      - "Use proper error handling"
+    
+    query_patterns:
+      - "SELECT with proper WHERE clauses"
+      - "INSERT with RETURNING clause"
+      - "UPDATE with optimistic locking"
+      - "DELETE with existence check"
+  
+  redis:
+    caching_patterns:
+      - "Cache frequently accessed data"
+      - "Use appropriate TTL values"
+      - "Implement cache invalidation"
+      - "Handle cache misses gracefully"
+  
+  external_services:
+    client_patterns:
+      - "Use HTTP client with timeouts"
+      - "Implement retry logic"
+      - "Handle rate limiting"
+      - "Use circuit breaker pattern"
+
+### Delivery Layer Rules:
+delivery_layer:
+  http_handlers:
+    response_patterns:
+      - "Use consistent response format"
+      - "Include proper status codes"
+      - "Add request/response logging"
+      - "Handle validation errors"
+    
+    middleware:
+      - "Authentication middleware"
+      - "Authorization middleware"
+      - "Rate limiting middleware"
+      - "CORS middleware"
+      - "Logging middleware"
+  
+  routing:
+    rest_patterns:
+      - "GET /{resource} - list resources"
+      - "GET /{resource}/{id} - get resource"
+      - "POST /{resource} - create resource"
+      - "PUT /{resource}/{id} - update resource"
+      - "DELETE /{resource}/{id} - delete resource"
+
+## 3. Business Logic Rules
+
+### Validation Rules:
+validation:
+  input_validation:
+    - "Validate all inputs at delivery layer"
+    - "Use struct tags for validation"
+    - "Implement custom validators for complex rules"
+    - "Return meaningful error messages"
+  
+  domain_validation:
+    - "Validate business rules in domain layer"
+    - "Use value objects for complex validation"
+    - "Implement domain-specific error types"
+    - "Ensure data consistency"
+
+### Error Handling Rules:
+error_handling:
+  error_types:
+    - "DomainError - business rule violations"
+    - "ValidationError - input validation errors"
+    - "NotFoundError - resource not found"
+    - "ConflictError - resource conflicts"
+    - "SystemError - system-level errors"
+  
+  error_wrapping:
+    - "Wrap errors with context"
+    - "Preserve original error information"
+    - "Add stack traces for debugging"
+    - "Log errors with structured data"
+
+### Security Rules:
+security:
+  input_sanitization:
+    - "Sanitize all user inputs"
+    - "Validate file uploads"
+    - "Prevent SQL injection"
+    - "Prevent XSS attacks"
+  
+  authentication:
+    - "Implement proper authentication"
+    - "Use JWT tokens"
+    - "Handle token expiration"
+    - "Implement refresh tokens"
+  
+  authorization:
+    - "Check user permissions"
+    - "Implement role-based access"
+    - "Validate resource ownership"
+    - "Log security events"
+
+## 4. Performance Rules
+
+### Database Rules:
+performance:
+  database:
+    indexing:
+      - "Index frequently queried columns"
+      - "Use composite indexes for complex queries"
+      - "Avoid over-indexing"
+      - "Monitor query performance"
+    
+    connection_pooling:
+      - "Configure appropriate pool size"
+      - "Set connection timeouts"
+      - "Handle connection failures"
+      - "Monitor pool usage"
+  
+  caching:
+    strategies:
+      - "Cache frequently accessed data"
+      - "Use appropriate cache TTL"
+      - "Implement cache invalidation"
+      - "Handle cache failures gracefully"
+  
+  api_optimization:
+    - "Use pagination for large datasets"
+    - "Implement response compression"
+    - "Use appropriate HTTP status codes"
+    - "Optimize response payloads"
+
+## 5. Testing Rules
+
+### Unit Testing Rules:
+testing:
+  unit_tests:
+    coverage:
+      - "Aim for 80%+ code coverage"
+      - "Test all public methods"
+      - "Test error conditions"
+      - "Test edge cases"
+    
+    patterns:
+      - "Use table-driven tests"
+      - "Mock external dependencies"
+      - "Test both success and failure cases"
+      - "Use descriptive test names"
+  
+  integration_tests:
+    - "Test service interactions"
+    - "Use test database"
+    - "Test API endpoints"
+    - "Verify data persistence"
+  
+  performance_tests:
+    - "Benchmark critical paths"
+    - "Test under load"
+    - "Monitor resource usage"
+    - "Set performance baselines"
+
+## 6. Documentation Rules
+
+### Code Documentation:
+documentation:
+  code_comments:
+    - "Document all public APIs"
+    - "Use godoc comments"
+    - "Include usage examples"
+    - "Document complex business logic"
+  
+  api_documentation:
+    - "Document all endpoints"
+    - "Include request/response examples"
+    - "Document error responses"
+    - "Include authentication requirements"
+  
+  architecture_documentation:
+    - "Document service boundaries"
+    - "Explain data flow"
+    - "Document integration points"
+    - "Include deployment information"
+
+## 7. Configuration Rules
+
+### Environment Configuration:
+configuration:
+  environment_variables:
+    - "Use environment-specific configs"
+    - "Validate configuration on startup"
+    - "Use secure defaults"
+    - "Document all config options"
+  
+  secrets_management:
+    - "Use environment variables for secrets"
+    - "Never commit secrets to code"
+    - "Use secure secret storage"
+    - "Rotate secrets regularly"
+
+## 8. Monitoring Rules
+
+### Observability:
+monitoring:
+  logging:
+    - "Use structured logging"
+    - "Include correlation IDs"
+    - "Log at appropriate levels"
+    - "Include relevant context"
+  
+  metrics:
+    - "Track request rates"
+    - "Monitor response times"
+    - "Track error rates"
+    - "Monitor resource usage"
+  
+  alerting:
+    - "Set up error rate alerts"
+    - "Monitor service health"
+    - "Alert on performance degradation"
+    - "Track business metrics"
+
+## 9. Deployment Rules
+
+### Containerization:
+deployment:
+  docker:
+    - "Use multi-stage builds"
+    - "Optimize image size"
+    - "Use non-root users"
+    - "Include health checks"
+  
+  kubernetes:
+    - "Use appropriate resource limits"
+    - "Configure health checks"
+    - "Set up proper networking"
+    - "Use secrets for sensitive data"
+
+## 10. Feature Integration Rules
+
+### Feature Development:
+feature_integration:
+  new_features:
+    - "Follow existing patterns"
+    - "Reuse existing components"
+    - "Add comprehensive tests"
+    - "Update documentation"
+  
+  api_evolution:
+    - "Maintain backward compatibility"
+    - "Version APIs properly"
+    - "Deprecate gracefully"
+    - "Communicate changes"
+  
+  database_migrations:
+    - "Use migration files"
+    - "Test migrations"
+    - "Plan rollback strategies"
+    - "Monitor migration progress"
