@@ -1,0 +1,136 @@
+package {{.ServicePackage}}
+
+import (
+	"context"
+	"golang-arch/internal/services/{{.ServicePackage}}_service/domain/entity"
+	"golang-arch/internal/services/{{.ServicePackage}}_service/domain/repository"
+	"golang-arch/internal/services/{{.ServicePackage}}_service/domain/types"
+)
+
+// Get{{.ServiceTitle}}Query represents the query to get a {{.ServiceTitle}} by ID
+type Get{{.ServiceTitle}}Query struct {
+	ID string `json:"id" validate:"required"`
+}
+
+// Get{{.ServiceTitle}}Handler handles the retrieval of a {{.ServiceTitle}}
+type Get{{.ServiceTitle}}Handler struct {
+	repo repository.{{.ServiceTitle}}Reader
+}
+
+// NewGet{{.ServiceTitle}}Handler creates a new query handler
+func NewGet{{.ServiceTitle}}Handler(repo repository.{{.ServiceTitle}}Reader) *Get{{.ServiceTitle}}Handler {
+	return &Get{{.ServiceTitle}}Handler{
+		repo: repo,
+	}
+}
+
+// Handle executes the get query
+func (h *Get{{.ServiceTitle}}Handler) Handle(ctx context.Context, query Get{{.ServiceTitle}}Query) (*entity.{{.ServiceTitle}}, error) {
+	return h.repo.GetByID(ctx, query.ID)
+}
+
+// List{{.ServiceTitle}}sQuery represents the query to list {{.ServiceTitle}}s
+type List{{.ServiceTitle}}sQuery struct {
+	Limit  int `json:"limit"`
+	Offset int `json:"offset"`
+}
+
+// List{{.ServiceTitle}}sResult represents the result of listing {{.ServiceTitle}}s
+type List{{.ServiceTitle}}sResult struct {
+	{{.ServiceTitle}}s []*entity.{{.ServiceTitle}} `json:"{{.ServicePackage}}s"`
+	Total             int                          `json:"total"`
+	Limit             int                          `json:"limit"`
+	Offset            int                          `json:"offset"`
+}
+
+// List{{.ServiceTitle}}sHandler handles the listing of {{.ServiceTitle}}s
+type List{{.ServiceTitle}}sHandler struct {
+	repo repository.{{.ServiceTitle}}Reader
+}
+
+// NewList{{.ServiceTitle}}sHandler creates a new query handler
+func NewList{{.ServiceTitle}}sHandler(repo repository.{{.ServiceTitle}}Reader) *List{{.ServiceTitle}}sHandler {
+	return &List{{.ServiceTitle}}sHandler{
+		repo: repo,
+	}
+}
+
+// Handle executes the list query
+func (h *List{{.ServiceTitle}}sHandler) Handle(ctx context.Context, query List{{.ServiceTitle}}sQuery) (*List{{.ServiceTitle}}sResult, error) {
+	// Create pagination
+	pagination := types.NewPagination(query.Limit, query.Offset)
+
+	// Get {{.ServiceTitle}}s
+	{{.ServicePackage}}s, err := h.repo.List(ctx, pagination.Limit, pagination.Offset)
+	if err != nil {
+		return nil, err
+	}
+
+	// Get total count
+	total, err := h.repo.Count(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	return &List{{.ServiceTitle}}sResult{
+		{{.ServiceTitle}}s: {{.ServicePackage}}s,
+		Total:             total,
+		Limit:             pagination.Limit,
+		Offset:            pagination.Offset,
+	}, nil
+}
+
+// Search{{.ServiceTitle}}sQuery represents the query to search {{.ServiceTitle}}s
+type Search{{.ServiceTitle}}sQuery struct {
+	Query  string `json:"query"`
+	Limit  int    `json:"limit"`
+	Offset int    `json:"offset"`
+}
+
+// Search{{.ServiceTitle}}sResult represents the result of searching {{.ServiceTitle}}s
+type Search{{.ServiceTitle}}sResult struct {
+	{{.ServiceTitle}}s []*entity.{{.ServiceTitle}} `json:"{{.ServicePackage}}s"`
+	Total             int                          `json:"total"`
+	Query             string                       `json:"query"`
+	Limit             int                          `json:"limit"`
+	Offset            int                          `json:"offset"`
+}
+
+// Search{{.ServiceTitle}}sHandler handles the search of {{.ServiceTitle}}s
+type Search{{.ServiceTitle}}sHandler struct {
+	repo repository.{{.ServiceTitle}}Reader
+}
+
+// NewSearch{{.ServiceTitle}}sHandler creates a new query handler
+func NewSearch{{.ServiceTitle}}sHandler(repo repository.{{.ServiceTitle}}Reader) *Search{{.ServiceTitle}}sHandler {
+	return &Search{{.ServiceTitle}}sHandler{
+		repo: repo,
+	}
+}
+
+// Handle executes the search query
+func (h *Search{{.ServiceTitle}}sHandler) Handle(ctx context.Context, query Search{{.ServiceTitle}}sQuery) (*Search{{.ServiceTitle}}sResult, error) {
+	// Create pagination
+	pagination := types.NewPagination(query.Limit, query.Offset)
+
+	// For now, we'll use the basic list functionality
+	// In a real implementation, you might have a search-specific repository method
+	{{.ServicePackage}}s, err := h.repo.List(ctx, pagination.Limit, pagination.Offset)
+	if err != nil {
+		return nil, err
+	}
+
+	// Get total count
+	total, err := h.repo.Count(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	return &Search{{.ServiceTitle}}sResult{
+		{{.ServiceTitle}}s: {{.ServicePackage}}s,
+		Total:             total,
+		Query:             query.Query,
+		Limit:             pagination.Limit,
+		Offset:            pagination.Offset,
+	}, nil
+} 

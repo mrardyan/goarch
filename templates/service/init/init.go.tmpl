@@ -1,0 +1,85 @@
+package init
+
+import (
+	"database/sql"
+	"golang-arch/internal/services/{{.ServicePackage}}_service/application/{{.ServicePackage}}"
+	"golang-arch/internal/services/{{.ServicePackage}}_service/config"
+	"golang-arch/internal/services/{{.ServicePackage}}_service/delivery/http"
+	"golang-arch/internal/services/{{.ServicePackage}}_service/infrastructure/postgres"
+	"go.uber.org/zap"
+)
+
+// {{.ServiceTitle}}Service represents the {{.ServiceTitle}} service with all its components
+type {{.ServiceTitle}}Service struct {
+	repo    postgres.{{.ServiceTitle}}Repository
+	handler *http.{{.ServiceTitle}}Handler
+	config  *config.{{.ServiceTitle}}Config
+	logger  *zap.Logger
+}
+
+// New{{.ServiceTitle}}Service creates a new {{.ServiceTitle}} service with all dependencies
+func New{{.ServiceTitle}}Service(db *sql.DB, logger *zap.Logger, cfg *config.{{.ServiceTitle}}Config) (*{{.ServiceTitle}}Service, error) {
+	// Validate configuration
+	if err := cfg.Validate(); err != nil {
+		return nil, err
+	}
+
+	// Initialize repository
+	repo := postgres.New{{.ServiceTitle}}Repository(db)
+
+	// Initialize command handlers
+	createHandler := {{.ServicePackage}}.NewCreate{{.ServiceTitle}}Handler(repo)
+	updateHandler := {{.ServicePackage}}.NewUpdate{{.ServiceTitle}}Handler(repo)
+	deleteHandler := {{.ServicePackage}}.NewDelete{{.ServiceTitle}}Handler(repo)
+
+	// Initialize query handlers
+	getHandler := {{.ServicePackage}}.NewGet{{.ServiceTitle}}Handler(repo)
+	listHandler := {{.ServicePackage}}.NewList{{.ServiceTitle}}sHandler(repo)
+
+	// Initialize HTTP handler
+	handler := http.New{{.ServiceTitle}}Handler(
+		createHandler,
+		getHandler,
+		listHandler,
+		updateHandler,
+		deleteHandler,
+		logger,
+	)
+
+	return &{{.ServiceTitle}}Service{
+		repo:    repo,
+		handler: handler,
+		config:  cfg,
+		logger:  logger,
+	}, nil
+}
+
+// GetHandler returns the HTTP handler
+func (s *{{.ServiceTitle}}Service) GetHandler() *http.{{.ServiceTitle}}Handler {
+	return s.handler
+}
+
+// GetConfig returns the service configuration
+func (s *{{.ServiceTitle}}Service) GetConfig() *config.{{.ServiceTitle}}Config {
+	return s.config
+}
+
+// GetLogger returns the service logger
+func (s *{{.ServiceTitle}}Service) GetLogger() *zap.Logger {
+	return s.logger
+}
+
+// SetupRoutes sets up the HTTP routes for the service
+func (s *{{.ServiceTitle}}Service) SetupRoutes(router *gin.RouterGroup) {
+	http.Setup{{.ServiceTitle}}Routes(router, s.handler)
+}
+
+// SetupMiddleware sets up the middleware for the service
+func (s *{{.ServiceTitle}}Service) SetupMiddleware(router *gin.RouterGroup) {
+	http.Setup{{.ServiceTitle}}Middleware(router)
+}
+
+// IsEnabled checks if the service is enabled
+func (s *{{.ServiceTitle}}Service) IsEnabled() bool {
+	return s.config.Enabled
+} 

@@ -1,0 +1,75 @@
+package config
+
+import (
+	"time"
+)
+
+// {{.ServiceTitle}}Config represents the configuration for {{.ServiceTitle}} service
+type {{.ServiceTitle}}Config struct {
+	Enabled bool   `mapstructure:"enabled"`
+	Timeout string `mapstructure:"timeout"`
+	Cache   struct {
+		Enabled bool   `mapstructure:"enabled"`
+		TTL     string `mapstructure:"ttl"`
+	} `mapstructure:"cache"`
+	Database struct {
+		MaxOpenConns    int           `mapstructure:"max_open_conns"`
+		MaxIdleConns    int           `mapstructure:"max_idle_conns"`
+		ConnMaxLifetime time.Duration `mapstructure:"conn_max_lifetime"`
+	} `mapstructure:"database"`
+	API struct {
+		RateLimit int `mapstructure:"rate_limit"`
+		Timeout   int `mapstructure:"timeout"`
+	} `mapstructure:"api"`
+}
+
+// Default{{.ServiceTitle}}Config returns default configuration
+func Default{{.ServiceTitle}}Config() *{{.ServiceTitle}}Config {
+	return &{{.ServiceTitle}}Config{
+		Enabled: true,
+		Timeout: "30s",
+		Cache: struct {
+			Enabled bool   `mapstructure:"enabled"`
+			TTL     string `mapstructure:"ttl"`
+		}{
+			Enabled: true,
+			TTL:     "5m",
+		},
+		Database: struct {
+			MaxOpenConns    int           `mapstructure:"max_open_conns"`
+			MaxIdleConns    int           `mapstructure:"max_idle_conns"`
+			ConnMaxLifetime time.Duration `mapstructure:"conn_max_lifetime"`
+		}{
+			MaxOpenConns:    25,
+			MaxIdleConns:    5,
+			ConnMaxLifetime: 5 * time.Minute,
+		},
+		API: struct {
+			RateLimit int `mapstructure:"rate_limit"`
+			Timeout   int `mapstructure:"timeout"`
+		}{
+			RateLimit: 100,
+			Timeout:   30,
+		},
+	}
+}
+
+// Validate validates the configuration
+func (c *{{.ServiceTitle}}Config) Validate() error {
+	// Add validation logic here
+	// Example:
+	// if c.Timeout == "" {
+	//     return errors.New("timeout is required")
+	// }
+	return nil
+}
+
+// GetTimeout returns the timeout as time.Duration
+func (c *{{.ServiceTitle}}Config) GetTimeout() (time.Duration, error) {
+	return time.ParseDuration(c.Timeout)
+}
+
+// GetCacheTTL returns the cache TTL as time.Duration
+func (c *{{.ServiceTitle}}Config) GetCacheTTL() (time.Duration, error) {
+	return time.ParseDuration(c.Cache.TTL)
+} 

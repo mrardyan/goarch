@@ -1,0 +1,366 @@
+package {{.ServiceName}}_test
+
+import (
+	"context"
+	"testing"
+	"time"
+
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
+	"golang-arch/internal/services/{{.ServiceName}}/domain"
+)
+
+// MockRepository is a mock implementation of domain.Repository
+type MockRepository struct {
+	mock.Mock
+}
+
+func NewMockRepository() *MockRepository {
+	return &MockRepository{}
+}
+
+func (m *MockRepository) Create(ctx context.Context, {{.ServicePackage}} *domain.{{.ServiceTitle}}) error {
+	args := m.Called(ctx, {{.ServicePackage}})
+	return args.Error(0)
+}
+
+func (m *MockRepository) GetByID(ctx context.Context, id string) (*domain.{{.ServiceTitle}}, error) {
+	args := m.Called(ctx, id)
+	if args.Get(0) == nil {
+		return nil, args.Error(1)
+	}
+	return args.Get(0).(*domain.{{.ServiceTitle}}), args.Error(1)
+}
+
+func (m *MockRepository) Update(ctx context.Context, {{.ServicePackage}} *domain.{{.ServiceTitle}}) error {
+	args := m.Called(ctx, {{.ServicePackage}})
+	return args.Error(0)
+}
+
+func (m *MockRepository) Delete(ctx context.Context, id string) error {
+	args := m.Called(ctx, id)
+	return args.Error(0)
+}
+
+func (m *MockRepository) List(ctx context.Context, limit, offset int) ([]*domain.{{.ServiceTitle}}, error) {
+	args := m.Called(ctx, limit, offset)
+	if args.Get(0) == nil {
+		return nil, args.Error(1)
+	}
+	return args.Get(0).([]*domain.{{.ServiceTitle}}), args.Error(1)
+}
+
+func (m *MockRepository) Count(ctx context.Context) (int, error) {
+	args := m.Called(ctx)
+	return args.Int(0), args.Error(1)
+}
+
+// Test cases
+func Test{{.ServiceTitle}}Service_Create{{.ServiceTitle}}(t *testing.T) {
+	tests := []struct {
+		name    string
+		{{.ServicePackage}} *domain.{{.ServiceTitle}}
+		setup   func(*MockRepository)
+		wantErr error
+	}{
+		{
+			name: "successful creation",
+			{{.ServicePackage}}: &domain.{{.ServiceTitle}}{
+				ID: "test-id",
+			},
+			setup: func(mockRepo *MockRepository) {
+				mockRepo.On("Create", mock.Anything, mock.AnythingOfType("*domain.{{.ServiceTitle}}")).Return(nil)
+			},
+			wantErr: nil,
+		},
+		{
+			name:    "nil {{.ServicePackage}}",
+			{{.ServicePackage}}: nil,
+			setup:   func(mockRepo *MockRepository) {},
+			wantErr: domain.ErrInvalidInput,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			mockRepo := NewMockRepository()
+			tt.setup(mockRepo)
+
+			service := New{{.ServiceTitle}}Service(mockRepo)
+			err := service.Create{{.ServiceTitle}}(context.Background(), tt.{{.ServicePackage}})
+
+			if tt.wantErr != nil {
+				assert.Equal(t, tt.wantErr, err)
+			} else {
+				assert.NoError(t, err)
+			}
+
+			mockRepo.AssertExpectations(t)
+		})
+	}
+}
+
+func Test{{.ServiceTitle}}Service_Get{{.ServiceTitle}}ByID(t *testing.T) {
+	tests := []struct {
+		name    string
+		id      string
+		setup   func(*MockRepository)
+		want    *domain.{{.ServiceTitle}}
+		wantErr error
+	}{
+		{
+			name: "successful retrieval",
+			id:   "test-id",
+			setup: func(mockRepo *MockRepository) {
+				expected{{.ServicePackage}} := &domain.{{.ServiceTitle}}{
+					ID:        "test-id",
+					CreatedAt: time.Now(),
+					UpdatedAt: time.Now(),
+				}
+				mockRepo.On("GetByID", mock.Anything, "test-id").Return(expected{{.ServicePackage}}, nil)
+			},
+			want: &domain.{{.ServiceTitle}}{
+				ID:        "test-id",
+				CreatedAt: time.Now(),
+				UpdatedAt: time.Now(),
+			},
+			wantErr: nil,
+		},
+		{
+			name: "empty id",
+			id:   "",
+			setup: func(mockRepo *MockRepository) {},
+			want:  nil,
+			wantErr: domain.ErrInvalidInput,
+		},
+		{
+			name: "not found",
+			id:   "non-existent",
+			setup: func(mockRepo *MockRepository) {
+				mockRepo.On("GetByID", mock.Anything, "non-existent").Return(nil, domain.ErrNotFound)
+			},
+			want:    nil,
+			wantErr: domain.ErrNotFound,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			mockRepo := NewMockRepository()
+			tt.setup(mockRepo)
+
+			service := New{{.ServiceTitle}}Service(mockRepo)
+			got, err := service.Get{{.ServiceTitle}}ByID(context.Background(), tt.id)
+
+			if tt.wantErr != nil {
+				assert.Equal(t, tt.wantErr, err)
+			} else {
+				assert.NoError(t, err)
+				assert.NotNil(t, got)
+				assert.Equal(t, tt.want.ID, got.ID)
+			}
+
+			mockRepo.AssertExpectations(t)
+		})
+	}
+}
+
+func Test{{.ServiceTitle}}Service_Update{{.ServiceTitle}}(t *testing.T) {
+	tests := []struct {
+		name    string
+		{{.ServicePackage}} *domain.{{.ServiceTitle}}
+		setup   func(*MockRepository)
+		wantErr error
+	}{
+		{
+			name: "successful update",
+			{{.ServicePackage}}: &domain.{{.ServiceTitle}}{
+				ID: "test-id",
+			},
+			setup: func(mockRepo *MockRepository) {
+				existing{{.ServicePackage}} := &domain.{{.ServiceTitle}}{
+					ID:        "test-id",
+					CreatedAt: time.Now().Add(-time.Hour),
+					UpdatedAt: time.Now().Add(-time.Hour),
+				}
+				mockRepo.On("GetByID", mock.Anything, "test-id").Return(existing{{.ServicePackage}}, nil)
+				mockRepo.On("Update", mock.Anything, mock.AnythingOfType("*domain.{{.ServiceTitle}}")).Return(nil)
+			},
+			wantErr: nil,
+		},
+		{
+			name:    "nil {{.ServicePackage}}",
+			{{.ServicePackage}}: nil,
+			setup:   func(mockRepo *MockRepository) {},
+			wantErr: domain.ErrInvalidInput,
+		},
+		{
+			name: "empty id",
+			{{.ServicePackage}}: &domain.{{.ServiceTitle}}{
+				ID: "",
+			},
+			setup:   func(mockRepo *MockRepository) {},
+			wantErr: domain.ErrInvalidInput,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			mockRepo := NewMockRepository()
+			tt.setup(mockRepo)
+
+			service := New{{.ServiceTitle}}Service(mockRepo)
+			err := service.Update{{.ServiceTitle}}(context.Background(), tt.{{.ServicePackage}})
+
+			if tt.wantErr != nil {
+				assert.Equal(t, tt.wantErr, err)
+			} else {
+				assert.NoError(t, err)
+			}
+
+			mockRepo.AssertExpectations(t)
+		})
+	}
+}
+
+func Test{{.ServiceTitle}}Service_Delete{{.ServiceTitle}}(t *testing.T) {
+	tests := []struct {
+		name    string
+		id      string
+		setup   func(*MockRepository)
+		wantErr error
+	}{
+		{
+			name: "successful deletion",
+			id:   "test-id",
+			setup: func(mockRepo *MockRepository) {
+				existing{{.ServicePackage}} := &domain.{{.ServiceTitle}}{
+					ID: "test-id",
+				}
+				mockRepo.On("GetByID", mock.Anything, "test-id").Return(existing{{.ServicePackage}}, nil)
+				mockRepo.On("Delete", mock.Anything, "test-id").Return(nil)
+			},
+			wantErr: nil,
+		},
+		{
+			name:    "empty id",
+			id:      "",
+			setup:   func(mockRepo *MockRepository) {},
+			wantErr: domain.ErrInvalidInput,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			mockRepo := NewMockRepository()
+			tt.setup(mockRepo)
+
+			service := New{{.ServiceTitle}}Service(mockRepo)
+			err := service.Delete{{.ServiceTitle}}(context.Background(), tt.id)
+
+			if tt.wantErr != nil {
+				assert.Equal(t, tt.wantErr, err)
+			} else {
+				assert.NoError(t, err)
+			}
+
+			mockRepo.AssertExpectations(t)
+		})
+	}
+}
+
+func Test{{.ServiceTitle}}Service_List{{.ServiceTitle}}s(t *testing.T) {
+	tests := []struct {
+		name    string
+		limit   int
+		offset  int
+		setup   func(*MockRepository)
+		want    []*domain.{{.ServiceTitle}}
+		wantErr error
+	}{
+		{
+			name:   "successful list",
+			limit:  10,
+			offset: 0,
+			setup: func(mockRepo *MockRepository) {
+				expected{{.ServicePackage}}s := []*domain.{{.ServiceTitle}}{
+					{ID: "1", CreatedAt: time.Now(), UpdatedAt: time.Now()},
+					{ID: "2", CreatedAt: time.Now(), UpdatedAt: time.Now()},
+				}
+				mockRepo.On("List", mock.Anything, 10, 0).Return(expected{{.ServicePackage}}s, nil)
+			},
+			want: []*domain.{{.ServiceTitle}}{
+				{ID: "1", CreatedAt: time.Now(), UpdatedAt: time.Now()},
+				{ID: "2", CreatedAt: time.Now(), UpdatedAt: time.Now()},
+			},
+			wantErr: nil,
+		},
+		{
+			name:   "negative limit",
+			limit:  -5,
+			offset: 0,
+			setup: func(mockRepo *MockRepository) {
+				expected{{.ServicePackage}}s := []*domain.{{.ServiceTitle}}{}
+				mockRepo.On("List", mock.Anything, 10, 0).Return(expected{{.ServicePackage}}s, nil)
+			},
+			want:    []*domain.{{.ServiceTitle}}{},
+			wantErr: nil,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			mockRepo := NewMockRepository()
+			tt.setup(mockRepo)
+
+			service := New{{.ServiceTitle}}Service(mockRepo)
+			got, err := service.List{{.ServiceTitle}}s(context.Background(), tt.limit, tt.offset)
+
+			if tt.wantErr != nil {
+				assert.Equal(t, tt.wantErr, err)
+			} else {
+				assert.NoError(t, err)
+				assert.Len(t, got, len(tt.want))
+			}
+
+			mockRepo.AssertExpectations(t)
+		})
+	}
+}
+
+func Test{{.ServiceTitle}}Service_Count{{.ServiceTitle}}s(t *testing.T) {
+	tests := []struct {
+		name    string
+		setup   func(*MockRepository)
+		want    int
+		wantErr error
+	}{
+		{
+			name: "successful count",
+			setup: func(mockRepo *MockRepository) {
+				mockRepo.On("Count", mock.Anything).Return(5, nil)
+			},
+			want:    5,
+			wantErr: nil,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			mockRepo := NewMockRepository()
+			tt.setup(mockRepo)
+
+			service := New{{.ServiceTitle}}Service(mockRepo)
+			got, err := service.Count{{.ServiceTitle}}s(context.Background())
+
+			if tt.wantErr != nil {
+				assert.Equal(t, tt.wantErr, err)
+			} else {
+				assert.NoError(t, err)
+				assert.Equal(t, tt.want, got)
+			}
+
+			mockRepo.AssertExpectations(t)
+		})
+	}
+} 

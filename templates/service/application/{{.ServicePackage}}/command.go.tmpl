@@ -1,0 +1,133 @@
+package {{.ServicePackage}}
+
+import (
+	"context"
+	"golang-arch/internal/services/{{.ServicePackage}}_service/domain/entity"
+	"golang-arch/internal/services/{{.ServicePackage}}_service/domain/repository"
+	"golang-arch/internal/services/{{.ServicePackage}}_service/domain/types"
+)
+
+// Create{{.ServiceTitle}}Command represents the command to create a {{.ServiceTitle}}
+type Create{{.ServiceTitle}}Command struct {
+	Name  string `json:"name" validate:"required,min=2"`
+	Email string `json:"email" validate:"required,email"`
+}
+
+// Create{{.ServiceTitle}}Handler handles the creation of a {{.ServiceTitle}}
+type Create{{.ServiceTitle}}Handler struct {
+	repo repository.{{.ServiceTitle}}Writer
+}
+
+// NewCreate{{.ServiceTitle}}Handler creates a new command handler
+func NewCreate{{.ServiceTitle}}Handler(repo repository.{{.ServiceTitle}}Writer) *Create{{.ServiceTitle}}Handler {
+	return &Create{{.ServiceTitle}}Handler{
+		repo: repo,
+	}
+}
+
+// Handle executes the create command
+func (h *Create{{.ServiceTitle}}Handler) Handle(ctx context.Context, cmd Create{{.ServiceTitle}}Command) (*entity.{{.ServiceTitle}}, error) {
+	// Validate email
+	email, err := types.NewEmail(cmd.Email)
+	if err != nil {
+		return nil, err
+	}
+
+	// Validate name
+	name, err := types.NewName(cmd.Name)
+	if err != nil {
+		return nil, err
+	}
+
+	// Create entity
+	{{.ServicePackage}} := entity.New{{.ServiceTitle}}(name.Value(), email.Value())
+
+	// Validate entity
+	if err := {{.ServicePackage}}.Validate(); err != nil {
+		return nil, err
+	}
+
+	// Save to repository
+	if err := h.repo.Create(ctx, {{.ServicePackage}}); err != nil {
+		return nil, err
+	}
+
+	return {{.ServicePackage}}, nil
+}
+
+// Update{{.ServiceTitle}}Command represents the command to update a {{.ServiceTitle}}
+type Update{{.ServiceTitle}}Command struct {
+	ID    string `json:"id" validate:"required"`
+	Name  string `json:"name" validate:"required,min=2"`
+	Email string `json:"email" validate:"required,email"`
+}
+
+// Update{{.ServiceTitle}}Handler handles the update of a {{.ServiceTitle}}
+type Update{{.ServiceTitle}}Handler struct {
+	repo repository.{{.ServiceTitle}}Repository
+}
+
+// NewUpdate{{.ServiceTitle}}Handler creates a new command handler
+func NewUpdate{{.ServiceTitle}}Handler(repo repository.{{.ServiceTitle}}Repository) *Update{{.ServiceTitle}}Handler {
+	return &Update{{.ServiceTitle}}Handler{
+		repo: repo,
+	}
+}
+
+// Handle executes the update command
+func (h *Update{{.ServiceTitle}}Handler) Handle(ctx context.Context, cmd Update{{.ServiceTitle}}Command) (*entity.{{.ServiceTitle}}, error) {
+	// Get existing entity
+	{{.ServicePackage}}, err := h.repo.GetByID(ctx, cmd.ID)
+	if err != nil {
+		return nil, err
+	}
+
+	// Validate email
+	email, err := types.NewEmail(cmd.Email)
+	if err != nil {
+		return nil, err
+	}
+
+	// Validate name
+	name, err := types.NewName(cmd.Name)
+	if err != nil {
+		return nil, err
+	}
+
+	// Update entity
+	{{.ServicePackage}}.Update(name.Value(), email.Value())
+
+	// Validate entity
+	if err := {{.ServicePackage}}.Validate(); err != nil {
+		return nil, err
+	}
+
+	// Save to repository
+	if err := h.repo.Update(ctx, {{.ServicePackage}}); err != nil {
+		return nil, err
+	}
+
+	return {{.ServicePackage}}, nil
+}
+
+// Delete{{.ServiceTitle}}Command represents the command to delete a {{.ServiceTitle}}
+type Delete{{.ServiceTitle}}Command struct {
+	ID string `json:"id" validate:"required"`
+}
+
+// Delete{{.ServiceTitle}}Handler handles the deletion of a {{.ServiceTitle}}
+type Delete{{.ServiceTitle}}Handler struct {
+	repo repository.{{.ServiceTitle}}Writer
+}
+
+// NewDelete{{.ServiceTitle}}Handler creates a new command handler
+func NewDelete{{.ServiceTitle}}Handler(repo repository.{{.ServiceTitle}}Writer) *Delete{{.ServiceTitle}}Handler {
+	return &Delete{{.ServiceTitle}}Handler{
+		repo: repo,
+	}
+}
+
+// Handle executes the delete command
+func (h *Delete{{.ServiceTitle}}Handler) Handle(ctx context.Context, cmd Delete{{.ServiceTitle}}Command) error {
+	return h.repo.Delete(ctx, cmd.ID)
+} 

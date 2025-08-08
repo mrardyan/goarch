@@ -1,0 +1,25 @@
+-- Migration: Create {{.ServicePackage}}s table
+-- Up migration
+
+CREATE TABLE IF NOT EXISTS {{.ServicePackage}}s (
+    id VARCHAR(255) PRIMARY KEY,
+    created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
+    -- Add your custom fields here
+    -- Example:
+    -- name VARCHAR(255) NOT NULL,
+    -- email VARCHAR(255) UNIQUE NOT NULL,
+    -- status VARCHAR(50) NOT NULL DEFAULT 'active'
+);
+
+-- Create indexes for better performance
+CREATE INDEX IF NOT EXISTS idx_{{.ServicePackage}}s_created_at ON {{.ServicePackage}}s(created_at);
+CREATE INDEX IF NOT EXISTS idx_{{.ServicePackage}}s_updated_at ON {{.ServicePackage}}s(updated_at);
+
+-- Add your custom indexes here
+-- Example:
+-- CREATE INDEX IF NOT EXISTS idx_{{.ServicePackage}}s_email ON {{.ServicePackage}}s(email);
+-- CREATE INDEX IF NOT EXISTS idx_{{.ServicePackage}}s_status ON {{.ServicePackage}}s(status);
+
+-- Down migration (for rollback)
+-- DROP TABLE IF EXISTS {{.ServicePackage}}s; 

@@ -1,0 +1,47 @@
+package repository
+
+import (
+	"context"
+	"golang-arch/internal/services/{{.ServicePackage}}_service/domain/entity"
+)
+
+// {{.ServiceTitle}}Repository defines the interface for {{.ServiceTitle}} data access
+type {{.ServiceTitle}}Repository interface {
+	// Create creates a new {{.ServiceTitle}}
+	Create(ctx context.Context, {{.ServicePackage}} *entity.{{.ServiceTitle}}) error
+	
+	// GetByID retrieves a {{.ServiceTitle}} by ID
+	GetByID(ctx context.Context, id string) (*entity.{{.ServiceTitle}}, error)
+	
+	// Update updates an existing {{.ServiceTitle}}
+	Update(ctx context.Context, {{.ServicePackage}} *entity.{{.ServiceTitle}}) error
+	
+	// Delete removes a {{.ServiceTitle}} by ID
+	Delete(ctx context.Context, id string) error
+	
+	// List retrieves a list of {{.ServiceTitle}}s with pagination
+	List(ctx context.Context, limit, offset int) ([]*entity.{{.ServiceTitle}}, error)
+	
+	// Count returns the total number of {{.ServiceTitle}}s
+	Count(ctx context.Context) (int, error)
+}
+
+// {{.ServiceTitle}}Reader defines read-only operations
+type {{.ServiceTitle}}Reader interface {
+	GetByID(ctx context.Context, id string) (*entity.{{.ServiceTitle}}, error)
+	List(ctx context.Context, limit, offset int) ([]*entity.{{.ServiceTitle}}, error)
+	Count(ctx context.Context) (int, error)
+}
+
+// {{.ServiceTitle}}Writer defines write operations
+type {{.ServiceTitle}}Writer interface {
+	Create(ctx context.Context, {{.ServicePackage}} *entity.{{.ServiceTitle}}) error
+	Update(ctx context.Context, {{.ServicePackage}} *entity.{{.ServiceTitle}}) error
+	Delete(ctx context.Context, id string) error
+}
+
+// {{.ServiceTitle}}Repository combines reader and writer interfaces
+type {{.ServiceTitle}}Repository interface {
+	{{.ServiceTitle}}Reader
+	{{.ServiceTitle}}Writer
+} 

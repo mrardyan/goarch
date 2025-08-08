@@ -1,0 +1,52 @@
+package entity
+
+import (
+	"time"
+)
+
+// {{.ServiceTitle}} represents the core business entity
+type {{.ServiceTitle}} struct {
+	ID        string    `json:"id"`
+	Name      string    `json:"name"`
+	Email     string    `json:"email"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
+}
+
+// New{{.ServiceTitle}} creates a new {{.ServiceTitle}} instance
+func New{{.ServiceTitle}}(name, email string) *{{.ServiceTitle}} {
+	now := time.Now()
+	return &{{.ServiceTitle}}{
+		ID:        generateID(), // Implement your ID generation logic
+		Name:      name,
+		Email:     email,
+		CreatedAt: now,
+		UpdatedAt: now,
+	}
+}
+
+// Validate performs business rule validation
+func ({{.ServicePackage}} *{{.ServiceTitle}}) Validate() error {
+	if {{.ServicePackage}}.Name == "" {
+		return ErrInvalidName
+	}
+	if {{.ServicePackage}}.Email == "" {
+		return ErrInvalidEmail
+	}
+	// Add more validation rules as needed
+	return nil
+}
+
+// Update updates the {{.ServiceTitle}} with new data
+func ({{.ServicePackage}} *{{.ServiceTitle}}) Update(name, email string) {
+	{{.ServicePackage}}.Name = name
+	{{.ServicePackage}}.Email = email
+	{{.ServicePackage}}.UpdatedAt = time.Now()
+}
+
+// generateID generates a unique ID for the entity
+func generateID() string {
+	// Implement your ID generation logic
+	// Example: return uuid.New().String()
+	return "temp-id"
+} 

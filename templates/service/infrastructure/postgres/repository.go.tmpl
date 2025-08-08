@@ -1,0 +1,98 @@
+package postgres
+
+import (
+	"context"
+	"database/sql"
+	"time"
+	"golang-arch/internal/services/{{.ServicePackage}}_service/domain/entity"
+	"golang-arch/internal/services/{{.ServicePackage}}_service/domain/repository"
+)
+
+type {{.ServiceTitle}}Repository struct {
+	db *sql.DB
+}
+
+func New{{.ServiceTitle}}Repository(db *sql.DB) repository.{{.ServiceTitle}}Repository {
+	return &{{.ServiceTitle}}Repository{
+		db: db,
+	}
+}
+
+// Write operations
+func (r *{{.ServiceTitle}}Repository) Create(ctx context.Context, {{.ServicePackage}} *entity.{{.ServiceTitle}}) error {
+	query := `INSERT INTO {{.ServicePackage}}s (id, name, email, created_at, updated_at) VALUES ($1, $2, $3, $4, $5)`
+	_, err := r.db.ExecContext(ctx, query, {{.ServicePackage}}.ID, {{.ServicePackage}}.Name, {{.ServicePackage}}.Email, {{.ServicePackage}}.CreatedAt, {{.ServicePackage}}.UpdatedAt)
+	return err
+}
+
+func (r *{{.ServiceTitle}}Repository) Update(ctx context.Context, {{.ServicePackage}} *entity.{{.ServiceTitle}}) error {
+	query := `UPDATE {{.ServicePackage}}s SET name = $1, email = $2, updated_at = $3 WHERE id = $4`
+	_, err := r.db.ExecContext(ctx, query, {{.ServicePackage}}.Name, {{.ServicePackage}}.Email, {{.ServicePackage}}.UpdatedAt, {{.ServicePackage}}.ID)
+	return err
+}
+
+func (r *{{.ServiceTitle}}Repository) Delete(ctx context.Context, id string) error {
+	query := `DELETE FROM {{.ServicePackage}}s WHERE id = $1`
+	_, err := r.db.ExecContext(ctx, query, id)
+	return err
+}
+
+// Read operations
+func (r *{{.ServiceTitle}}Repository) GetByID(ctx context.Context, id string) (*entity.{{.ServiceTitle}}, error) {
+	query := `SELECT id, name, email, created_at, updated_at FROM {{.ServicePackage}}s WHERE id = $1`
+	var {{.ServicePackage}} entity.{{.ServiceTitle}}
+	err := r.db.QueryRowContext(ctx, query, id).Scan(&{{.ServicePackage}}.ID, &{{.ServicePackage}}.Name, &{{.ServicePackage}}.Email, &{{.ServicePackage}}.CreatedAt, &{{.ServicePackage}}.UpdatedAt)
+	if err != nil {
+		return nil, err
+	}
+	return &{{.ServicePackage}}, nil
+}
+
+func (r *{{.ServiceTitle}}Repository) List(ctx context.Context, limit, offset int) ([]*entity.{{.ServiceTitle}}, error) {
+	query := `SELECT id, name, email, created_at, updated_at FROM {{.ServicePackage}}s ORDER BY created_at DESC LIMIT $1 OFFSET $2`
+	rows, err := r.db.QueryContext(ctx, query, limit, offset)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var {{.ServicePackage}}s []*entity.{{.ServiceTitle}}
+	for rows.Next() {
+		var {{.ServicePackage}} entity.{{.ServiceTitle}}
+		err := rows.Scan(&{{.ServicePackage}}.ID, &{{.ServicePackage}}.Name, &{{.ServicePackage}}.Email, &{{.ServicePackage}}.CreatedAt, &{{.ServicePackage}}.UpdatedAt)
+		if err != nil {
+			return nil, err
+		}
+		{{.ServicePackage}}s = append({{.ServicePackage}}s, &{{.ServicePackage}})
+	}
+	return {{.ServicePackage}}s, nil
+}
+
+func (r *{{.ServiceTitle}}Repository) Count(ctx context.Context) (int, error) {
+	query := `SELECT COUNT(*) FROM {{.ServicePackage}}s`
+	var count int
+	err := r.db.QueryRowContext(ctx, query).Scan(&count)
+	return count, err
+}
+
+// Search operations (if needed)
+func (r *{{.ServiceTitle}}Repository) Search(ctx context.Context, query string, limit, offset int) ([]*entity.{{.ServiceTitle}}, error) {
+	sqlQuery := `SELECT id, name, email, created_at, updated_at FROM {{.ServicePackage}}s WHERE name ILIKE $1 OR email ILIKE $1 ORDER BY created_at DESC LIMIT $2 OFFSET $3`
+	searchTerm := "%" + query + "%"
+	rows, err := r.db.QueryContext(ctx, sqlQuery, searchTerm, limit, offset)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var {{.ServicePackage}}s []*entity.{{.ServiceTitle}}
+	for rows.Next() {
+		var {{.ServicePackage}} entity.{{.ServiceTitle}}
+		err := rows.Scan(&{{.ServicePackage}}.ID, &{{.ServicePackage}}.Name, &{{.ServicePackage}}.Email, &{{.ServicePackage}}.CreatedAt, &{{.ServicePackage}}.UpdatedAt)
+		if err != nil {
+			return nil, err
+		}
+		{{.ServicePackage}}s = append({{.ServicePackage}}s, &{{.ServicePackage}})
+	}
+	return {{.ServicePackage}}s, nil
+} 

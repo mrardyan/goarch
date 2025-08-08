@@ -1,0 +1,221 @@
+# {{.ServiceTitle}} Service
+
+This service handles {{.ServicePackage}} management operations following Domain-Driven Design principles.
+
+## Architecture
+
+The service follows a layered architecture:
+
+```
+{{.ServiceName}}/
+├── domain/          # Domain entities, value objects, interfaces
+├── application/     # Use cases and orchestration logic
+├── infrastructure/  # DB/repo impl, external APIs, adapters
+└── delivery/        # Transport layer (HTTP handlers, routing, etc.)
+```
+
+## API Endpoints
+
+### {{.ServiceTitle}} Management
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/api/v1/{{.ServicePackage}}s/` | Create a new {{.ServicePackage}} |
+| GET | `/api/v1/{{.ServicePackage}}s/:id` | Get {{.ServicePackage}} by ID |
+| PUT | `/api/v1/{{.ServicePackage}}s/:id` | Update {{.ServicePackage}} |
+| DELETE | `/api/v1/{{.ServicePackage}}s/:id` | Delete {{.ServicePackage}} |
+| GET | `/api/v1/{{.ServicePackage}}s/` | List {{.ServicePackage}}s with pagination |
+| GET | `/api/v1/{{.ServicePackage}}s/count` | Get total count of {{.ServicePackage}}s |
+
+### Request/Response Examples
+
+#### Create {{.ServiceTitle}}
+
+**Request:**
+```json
+POST /api/v1/{{.ServicePackage}}s/
+{
+  // Add your request fields here
+  // Example:
+  // "name": "John Doe",
+  // "email": "john@example.com"
+}
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "data": {
+    "id": "uuid-here",
+    "created_at": "2024-01-01T00:00:00Z",
+    "updated_at": "2024-01-01T00:00:00Z"
+  },
+  "message": "{{.ServiceTitle}} created successfully"
+}
+```
+
+#### Get {{.ServiceTitle}} by ID
+
+**Request:**
+```json
+GET /api/v1/{{.ServicePackage}}s/uuid-here
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "data": {
+    "id": "uuid-here",
+    "created_at": "2024-01-01T00:00:00Z",
+    "updated_at": "2024-01-01T00:00:00Z"
+  },
+  "message": "{{.ServiceTitle}} retrieved successfully"
+}
+```
+
+#### List {{.ServiceTitle}}s
+
+**Request:**
+```json
+GET /api/v1/{{.ServicePackage}}s/?limit=10&offset=0
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "data": {
+    "{{.ServicePackage}}s": [
+      {
+        "id": "uuid-1",
+        "created_at": "2024-01-01T00:00:00Z",
+        "updated_at": "2024-01-01T00:00:00Z"
+      }
+    ],
+    "total": 1,
+    "limit": 10,
+    "offset": 0
+  },
+  "message": "{{.ServiceTitle}}s retrieved successfully"
+}
+```
+
+## Error Handling
+
+The service returns consistent error responses:
+
+```json
+{
+  "success": false,
+  "error": {
+    "code": "ERROR_CODE",
+    "message": "Human readable error message",
+    "details": "Additional error details"
+  }
+}
+```
+
+### Common Error Codes
+
+- `BAD_REQUEST`: Invalid input parameters
+- `NOT_FOUND`: {{.ServiceTitle}} not found
+- `CONFLICT`: {{.ServiceTitle}} already exists
+- `INTERNAL_SERVER_ERROR`: Unexpected server error
+
+## Database Schema
+
+```sql
+CREATE TABLE {{.ServicePackage}}s (
+    id VARCHAR(255) PRIMARY KEY,
+    created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
+    -- Add your custom fields here
+);
+```
+
+## Development
+
+### Running Tests
+
+```bash
+# Run all tests for this service
+go test ./tests/services/{{.ServiceName}}/...
+
+# Run with coverage
+go test -cover ./tests/services/{{.ServiceName}}/...
+
+# Run specific test
+go test -run Test{{.ServiceTitle}}Service_Create{{.ServiceTitle}}
+```
+
+### Adding New Fields
+
+1. **Update Domain Entity** (`domain/entity.go`)
+2. **Update Database Migration** (create new migration)
+3. **Update Repository** (`infrastructure/repository.go`)
+4. **Update Service Logic** (`application/service.go`)
+5. **Update HTTP Handlers** (`delivery/http.go`)
+6. **Update Tests** (`tests/services/{{.ServiceName}}/`)
+
+### Business Rules
+
+Add your business logic in the application layer:
+
+- Validation rules
+- Business constraints
+- Domain events
+- Cross-service communication
+
+## Integration
+
+### Dependency Injection
+
+Register the service in `internal/bootstrap/di.go`:
+
+```go
+// Register {{.ServiceTitle}} service
+{{.ServicePackage}}Service, {{.ServicePackage}}Handler := {{.ServiceName}}.New{{.ServiceTitle}}Service(db)
+{{.ServicePackage}}Handler.SetupRoutes(apiRouter)
+```
+
+### Environment Variables
+
+Add service-specific configuration:
+
+```bash
+# {{.ServiceTitle}} Service Configuration
+{{.ServicePackage}}_SERVICE_ENABLED=true
+{{.ServicePackage}}_SERVICE_TIMEOUT=30s
+```
+
+## Monitoring
+
+### Metrics
+
+- Request count by endpoint
+- Response time by endpoint
+- Error rate by endpoint
+- Database query performance
+
+### Health Checks
+
+The service includes health check endpoints:
+
+- `/health`: Basic health check
+- `/api/v1/{{.ServicePackage}}s/count`: Service-specific health check
+
+## Security
+
+- Input validation on all endpoints
+- SQL injection prevention through prepared statements
+- Rate limiting (implement in middleware)
+- Authentication/Authorization (implement in middleware)
+
+## Performance
+
+- Database connection pooling
+- Query optimization with proper indexes
+- Caching strategies (implement as needed)
+- Pagination for list endpoints 

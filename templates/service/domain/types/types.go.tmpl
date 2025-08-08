@@ -1,0 +1,129 @@
+package types
+
+import (
+	"errors"
+	"fmt"
+	"regexp"
+)
+
+// Common errors for the domain
+var (
+	ErrInvalidName  = errors.New("invalid name")
+	ErrInvalidEmail = errors.New("invalid email")
+	ErrNotFound     = errors.New("not found")
+	ErrAlreadyExists = errors.New("already exists")
+)
+
+// {{.ServiceTitle}}Status represents the status of a {{.ServiceTitle}}
+type {{.ServiceTitle}}Status string
+
+const (
+	{{.ServiceTitle}}StatusActive   {{.ServiceTitle}}Status = "active"
+	{{.ServiceTitle}}StatusInactive {{.ServiceTitle}}Status = "inactive"
+	{{.ServiceTitle}}StatusPending  {{.ServiceTitle}}Status = "pending"
+)
+
+// IsValid checks if the status is valid
+func (s {{.ServiceTitle}}Status) IsValid() bool {
+	switch s {
+	case {{.ServiceTitle}}StatusActive, {{.ServiceTitle}}StatusInactive, {{.ServiceTitle}}StatusPending:
+		return true
+	default:
+		return false
+	}
+}
+
+// String returns the string representation of the status
+func (s {{.ServiceTitle}}Status) String() string {
+	return string(s)
+}
+
+// Email represents a validated email address
+type Email struct {
+	value string
+}
+
+// NewEmail creates a new Email value object
+func NewEmail(email string) (*Email, error) {
+	if !isValidEmail(email) {
+		return nil, ErrInvalidEmail
+	}
+	return &Email{value: email}, nil
+}
+
+// Value returns the email string
+func (e *Email) Value() string {
+	return e.value
+}
+
+// String returns the string representation
+func (e *Email) String() string {
+	return e.value
+}
+
+// isValidEmail validates email format
+func isValidEmail(email string) bool {
+	emailRegex := regexp.MustCompile(`^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$`)
+	return emailRegex.MatchString(email)
+}
+
+// Name represents a validated name
+type Name struct {
+	value string
+}
+
+// NewName creates a new Name value object
+func NewName(name string) (*Name, error) {
+	if name == "" || len(name) < 2 {
+		return nil, ErrInvalidName
+	}
+	return &Name{value: name}, nil
+}
+
+// Value returns the name string
+func (n *Name) Value() string {
+	return n.value
+}
+
+// String returns the string representation
+func (n *Name) String() string {
+	return n.value
+}
+
+// Pagination represents pagination parameters
+type Pagination struct {
+	Limit  int `json:"limit"`
+	Offset int `json:"offset"`
+}
+
+// NewPagination creates a new Pagination instance
+func NewPagination(limit, offset int) *Pagination {
+	if limit <= 0 {
+		limit = 10 // default limit
+	}
+	if offset < 0 {
+		offset = 0
+	}
+	return &Pagination{
+		Limit:  limit,
+		Offset: offset,
+	}
+}
+
+// SortOrder represents sorting order
+type SortOrder string
+
+const (
+	SortOrderAsc  SortOrder = "asc"
+	SortOrderDesc SortOrder = "desc"
+)
+
+// IsValid checks if the sort order is valid
+func (s SortOrder) IsValid() bool {
+	return s == SortOrderAsc || s == SortOrderDesc
+}
+
+// String returns the string representation
+func (s SortOrder) String() string {
+	return string(s)
+} 

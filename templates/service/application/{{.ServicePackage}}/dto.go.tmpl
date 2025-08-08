@@ -1,0 +1,102 @@
+package {{.ServicePackage}}
+
+import (
+	"time"
+)
+
+// Create{{.ServiceTitle}}Request represents the request to create a {{.ServiceTitle}}
+type Create{{.ServiceTitle}}Request struct {
+	Name  string `json:"name" validate:"required,min=2"`
+	Email string `json:"email" validate:"required,email"`
+}
+
+// Create{{.ServiceTitle}}Response represents the response for creating a {{.ServiceTitle}}
+type Create{{.ServiceTitle}}Response struct {
+	ID        string    `json:"id"`
+	Name      string    `json:"name"`
+	Email     string    `json:"email"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
+}
+
+// Update{{.ServiceTitle}}Request represents the request to update a {{.ServiceTitle}}
+type Update{{.ServiceTitle}}Request struct {
+	Name  string `json:"name" validate:"required,min=2"`
+	Email string `json:"email" validate:"required,email"`
+}
+
+// Update{{.ServiceTitle}}Response represents the response for updating a {{.ServiceTitle}}
+type Update{{.ServiceTitle}}Response struct {
+	ID        string    `json:"id"`
+	Name      string    `json:"name"`
+	Email     string    `json:"email"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
+}
+
+// Get{{.ServiceTitle}}Response represents the response for getting a {{.ServiceTitle}}
+type Get{{.ServiceTitle}}Response struct {
+	ID        string    `json:"id"`
+	Name      string    `json:"name"`
+	Email     string    `json:"email"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
+}
+
+// List{{.ServiceTitle}}sRequest represents the request to list {{.ServiceTitle}}s
+type List{{.ServiceTitle}}sRequest struct {
+	Limit  int `json:"limit" form:"limit"`
+	Offset int `json:"offset" form:"offset"`
+}
+
+// List{{.ServiceTitle}}sResponse represents the response for listing {{.ServiceTitle}}s
+type List{{.ServiceTitle}}sResponse struct {
+	{{.ServiceTitle}}s []{{.ServiceTitle}}Summary `json:"{{.ServicePackage}}s"`
+	Total             int                        `json:"total"`
+	Limit             int                        `json:"limit"`
+	Offset            int                        `json:"offset"`
+}
+
+// {{.ServiceTitle}}Summary represents a summary of a {{.ServiceTitle}}
+type {{.ServiceTitle}}Summary struct {
+	ID        string    `json:"id"`
+	Name      string    `json:"name"`
+	Email     string    `json:"email"`
+	CreatedAt time.Time `json:"created_at"`
+}
+
+// Search{{.ServiceTitle}}sRequest represents the request to search {{.ServiceTitle}}s
+type Search{{.ServiceTitle}}sRequest struct {
+	Query  string `json:"query" form:"query"`
+	Limit  int    `json:"limit" form:"limit"`
+	Offset int    `json:"offset" form:"offset"`
+}
+
+// Search{{.ServiceTitle}}sResponse represents the response for searching {{.ServiceTitle}}s
+type Search{{.ServiceTitle}}sResponse struct {
+	{{.ServiceTitle}}s []{{.ServiceTitle}}Summary `json:"{{.ServicePackage}}s"`
+	Total             int                        `json:"total"`
+	Query             string                     `json:"query"`
+	Limit             int                        `json:"limit"`
+	Offset            int                        `json:"offset"`
+}
+
+// Delete{{.ServiceTitle}}Response represents the response for deleting a {{.ServiceTitle}}
+type Delete{{.ServiceTitle}}Response struct {
+	Success bool   `json:"success"`
+	Message string `json:"message"`
+}
+
+// ErrorResponse represents an error response
+type ErrorResponse struct {
+	Error   string `json:"error"`
+	Message string `json:"message"`
+	Code    int    `json:"code"`
+}
+
+// SuccessResponse represents a success response
+type SuccessResponse struct {
+	Success bool        `json:"success"`
+	Data    interface{} `json:"data"`
+	Message string      `json:"message"`
+} 

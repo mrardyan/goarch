@@ -1,0 +1,81 @@
+package {{.ServicePackage}}_service
+
+import (
+	"database/sql"
+	"github.com/gin-gonic/gin"
+	"go.uber.org/zap"
+	"golang-arch/internal/services/{{.ServicePackage}}_service/config"
+	"golang-arch/internal/services/{{.ServicePackage}}_service/init"
+)
+
+// Module represents the {{.ServiceTitle}} service module
+type Module struct {
+	service *init.{{.ServiceTitle}}Service
+	config  *config.{{.ServiceTitle}}Config
+	logger  *zap.Logger
+}
+
+// NewModule creates a new {{.ServiceTitle}} service module
+func NewModule(db *sql.DB, logger *zap.Logger, cfg *config.{{.ServiceTitle}}Config) (*Module, error) {
+	service, err := init.New{{.ServiceTitle}}Service(db, logger, cfg)
+	if err != nil {
+		return nil, err
+	}
+
+	return &Module{
+		service: service,
+		config:  cfg,
+		logger:  logger,
+	}, nil
+}
+
+// SetupRoutes sets up the HTTP routes for the module
+func (m *Module) SetupRoutes(router *gin.RouterGroup) {
+	if !m.service.IsEnabled() {
+		m.logger.Info("{{.ServiceTitle}} service is disabled, skipping route setup")
+		return
+	}
+
+	m.service.SetupRoutes(router)
+	m.logger.Info("{{.ServiceTitle}} service routes configured")
+}
+
+// SetupMiddleware sets up the middleware for the module
+func (m *Module) SetupMiddleware(router *gin.RouterGroup) {
+	if !m.service.IsEnabled() {
+		return
+	}
+
+	m.service.SetupMiddleware(router)
+	m.logger.Info("{{.ServiceTitle}} service middleware configured")
+}
+
+// GetService returns the service instance
+func (m *Module) GetService() *init.{{.ServiceTitle}}Service {
+	return m.service
+}
+
+// GetConfig returns the module configuration
+func (m *Module) GetConfig() *config.{{.ServiceTitle}}Config {
+	return m.config
+}
+
+// IsEnabled checks if the module is enabled
+func (m *Module) IsEnabled() bool {
+	return m.service.IsEnabled()
+}
+
+// HealthCheck performs a health check on the module
+func (m *Module) HealthCheck() error {
+	// Implement health check logic
+	// Example: Check database connection, cache connectivity, etc.
+	return nil
+}
+
+// Shutdown gracefully shuts down the module
+func (m *Module) Shutdown() error {
+	// Implement shutdown logic
+	// Example: Close database connections, flush cache, etc.
+	m.logger.Info("{{.ServiceTitle}} service module shutdown")
+	return nil
+} 

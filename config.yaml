@@ -1,0 +1,21 @@
+server:
+  port: 8080
+  host: "0.0.0.0"
+
+database:
+  host: "localhost"
+  port: 5432
+  name: "golang_arch"
+  user: "postgres"
+  password: "password"
+  ssl_mode: "disable"
+
+redis:
+  host: "localhost"
+  port: 6379
+  password: ""
+  db: 0
+
+log:
+  level: "info"
+  format: "json"

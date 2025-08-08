@@ -1,0 +1,185 @@
+package http
+
+import (
+	"net/http"
+	"strconv"
+	"github.com/gin-gonic/gin"
+	"go.uber.org/zap"
+	"golang-arch/internal/services/{{.ServicePackage}}_service/application/{{.ServicePackage}}"
+)
+
+type {{.ServiceTitle}}Handler struct {
+	createHandler *{{.ServicePackage}}.Create{{.ServiceTitle}}Handler
+	getHandler    *{{.ServicePackage}}.Get{{.ServiceTitle}}Handler
+	listHandler   *{{.ServicePackage}}.List{{.ServiceTitle}}sHandler
+	updateHandler *{{.ServicePackage}}.Update{{.ServiceTitle}}Handler
+	deleteHandler *{{.ServicePackage}}.Delete{{.ServiceTitle}}Handler
+	logger        *zap.Logger
+}
+
+func New{{.ServiceTitle}}Handler(
+	createHandler *{{.ServicePackage}}.Create{{.ServiceTitle}}Handler,
+	getHandler *{{.ServicePackage}}.Get{{.ServiceTitle}}Handler,
+	listHandler *{{.ServicePackage}}.List{{.ServiceTitle}}sHandler,
+	updateHandler *{{.ServicePackage}}.Update{{.ServiceTitle}}Handler,
+	deleteHandler *{{.ServicePackage}}.Delete{{.ServiceTitle}}Handler,
+	logger *zap.Logger,
+) *{{.ServiceTitle}}Handler {
+	return &{{.ServiceTitle}}Handler{
+		createHandler: createHandler,
+		getHandler:    getHandler,
+		listHandler:   listHandler,
+		updateHandler: updateHandler,
+		deleteHandler: deleteHandler,
+		logger:        logger,
+	}
+}
+
+// Create{{.ServiceTitle}} handles POST /{{.ServicePackage}}s
+func (h *{{.ServiceTitle}}Handler) Create{{.ServiceTitle}}(c *gin.Context) {
+	var req Create{{.ServiceTitle}}Request
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, ErrorResponse{Error: "Invalid request"})
+		return
+	}
+
+	cmd := {{.ServicePackage}}.Create{{.ServiceTitle}}Command{
+		Name:  req.Name,
+		Email: req.Email,
+	}
+
+	{{.ServicePackage}}, err := h.createHandler.Handle(c.Request.Context(), cmd)
+	if err != nil {
+		h.logger.Error("Failed to create {{.ServicePackage}}", zap.Error(err))
+		c.JSON(http.StatusInternalServerError, ErrorResponse{Error: "Failed to create {{.ServicePackage}}"})
+		return
+	}
+
+	c.JSON(http.StatusCreated, Create{{.ServiceTitle}}Response{
+		ID:        {{.ServicePackage}}.ID,
+		Name:      {{.ServicePackage}}.Name,
+		Email:     {{.ServicePackage}}.Email,
+		CreatedAt: {{.ServicePackage}}.CreatedAt,
+		UpdatedAt: {{.ServicePackage}}.UpdatedAt,
+	})
+}
+
+// Get{{.ServiceTitle}} handles GET /{{.ServicePackage}}s/:id
+func (h *{{.ServiceTitle}}Handler) Get{{.ServiceTitle}}(c *gin.Context) {
+	id := c.Param("id")
+	if id == "" {
+		c.JSON(http.StatusBadRequest, ErrorResponse{Error: "{{.ServiceTitle}} ID is required"})
+		return
+	}
+
+	query := {{.ServicePackage}}.Get{{.ServiceTitle}}Query{ID: id}
+	{{.ServicePackage}}, err := h.getHandler.Handle(c.Request.Context(), query)
+	if err != nil {
+		h.logger.Error("Failed to get {{.ServicePackage}}", zap.Error(err))
+		c.JSON(http.StatusNotFound, ErrorResponse{Error: "{{.ServiceTitle}} not found"})
+		return
+	}
+
+	c.JSON(http.StatusOK, Get{{.ServiceTitle}}Response{
+		ID:        {{.ServicePackage}}.ID,
+		Name:      {{.ServicePackage}}.Name,
+		Email:     {{.ServicePackage}}.Email,
+		CreatedAt: {{.ServicePackage}}.CreatedAt,
+		UpdatedAt: {{.ServicePackage}}.UpdatedAt,
+	})
+}
+
+// List{{.ServiceTitle}}s handles GET /{{.ServicePackage}}s
+func (h *{{.ServiceTitle}}Handler) List{{.ServiceTitle}}s(c *gin.Context) {
+	limitStr := c.DefaultQuery("limit", "10")
+	offsetStr := c.DefaultQuery("offset", "0")
+
+	limit, err := strconv.Atoi(limitStr)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, ErrorResponse{Error: "Invalid limit parameter"})
+		return
+	}
+
+	offset, err := strconv.Atoi(offsetStr)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, ErrorResponse{Error: "Invalid offset parameter"})
+		return
+	}
+
+	query := {{.ServicePackage}}.List{{.ServiceTitle}}sQuery{
+		Limit:  limit,
+		Offset: offset,
+	}
+
+	result, err := h.listHandler.Handle(c.Request.Context(), query)
+	if err != nil {
+		h.logger.Error("Failed to list {{.ServicePackage}}s", zap.Error(err))
+		c.JSON(http.StatusInternalServerError, ErrorResponse{Error: "Failed to list {{.ServicePackage}}s"})
+		return
+	}
+
+	c.JSON(http.StatusOK, List{{.ServiceTitle}}sResponse{
+		{{.ServiceTitle}}s: result.{{.ServiceTitle}}s,
+		Total:             result.Total,
+		Limit:             result.Limit,
+		Offset:            result.Offset,
+	})
+}
+
+// Update{{.ServiceTitle}} handles PUT /{{.ServicePackage}}s/:id
+func (h *{{.ServiceTitle}}Handler) Update{{.ServiceTitle}}(c *gin.Context) {
+	id := c.Param("id")
+	if id == "" {
+		c.JSON(http.StatusBadRequest, ErrorResponse{Error: "{{.ServiceTitle}} ID is required"})
+		return
+	}
+
+	var req Update{{.ServiceTitle}}Request
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, ErrorResponse{Error: "Invalid request"})
+		return
+	}
+
+	cmd := {{.ServicePackage}}.Update{{.ServiceTitle}}Command{
+		ID:    id,
+		Name:  req.Name,
+		Email: req.Email,
+	}
+
+	{{.ServicePackage}}, err := h.updateHandler.Handle(c.Request.Context(), cmd)
+	if err != nil {
+		h.logger.Error("Failed to update {{.ServicePackage}}", zap.Error(err))
+		c.JSON(http.StatusInternalServerError, ErrorResponse{Error: "Failed to update {{.ServicePackage}}"})
+		return
+	}
+
+	c.JSON(http.StatusOK, Update{{.ServiceTitle}}Response{
+		ID:        {{.ServicePackage}}.ID,
+		Name:      {{.ServicePackage}}.Name,
+		Email:     {{.ServicePackage}}.Email,
+		CreatedAt: {{.ServicePackage}}.CreatedAt,
+		UpdatedAt: {{.ServicePackage}}.UpdatedAt,
+	})
+}
+
+// Delete{{.ServiceTitle}} handles DELETE /{{.ServicePackage}}s/:id
+func (h *{{.ServiceTitle}}Handler) Delete{{.ServiceTitle}}(c *gin.Context) {
+	id := c.Param("id")
+	if id == "" {
+		c.JSON(http.StatusBadRequest, ErrorResponse{Error: "{{.ServiceTitle}} ID is required"})
+		return
+	}
+
+	cmd := {{.ServicePackage}}.Delete{{.ServiceTitle}}Command{ID: id}
+	err := h.deleteHandler.Handle(c.Request.Context(), cmd)
+	if err != nil {
+		h.logger.Error("Failed to delete {{.ServicePackage}}", zap.Error(err))
+		c.JSON(http.StatusInternalServerError, ErrorResponse{Error: "Failed to delete {{.ServicePackage}}"})
+		return
+	}
+
+	c.JSON(http.StatusOK, Delete{{.ServiceTitle}}Response{
+		Success: true,
+		Message: "{{.ServiceTitle}} deleted successfully",
+	})
+} 

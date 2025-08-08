@@ -1,0 +1,71 @@
+package http
+
+import (
+	"github.com/gin-gonic/gin"
+)
+
+// Setup{{.ServiceTitle}}Routes configures the HTTP routes for {{.ServiceTitle}} service
+func Setup{{.ServiceTitle}}Routes(router *gin.RouterGroup, handler *{{.ServiceTitle}}Handler) {
+	{{.ServicePackage}}s := router.Group("/{{.ServicePackage}}s")
+	{
+		{{.ServicePackage}}s.POST("/", handler.Create{{.ServiceTitle}})
+		{{.ServicePackage}}s.GET("/:id", handler.Get{{.ServiceTitle}})
+		{{.ServicePackage}}s.PUT("/:id", handler.Update{{.ServiceTitle}})
+		{{.ServicePackage}}s.DELETE("/:id", handler.Delete{{.ServiceTitle}})
+		{{.ServicePackage}}s.GET("/", handler.List{{.ServiceTitle}}s)
+	}
+}
+
+// Setup{{.ServiceTitle}}Middleware configures middleware for {{.ServiceTitle}} routes
+func Setup{{.ServiceTitle}}Middleware(router *gin.RouterGroup) {
+	// Add authentication middleware
+	router.Use(AuthMiddleware())
+	
+	// Add logging middleware
+	router.Use(LoggingMiddleware())
+	
+	// Add rate limiting middleware
+	router.Use(RateLimitMiddleware())
+}
+
+// AuthMiddleware provides authentication for {{.ServiceTitle}} routes
+func AuthMiddleware() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		// Implement authentication logic
+		// Example: JWT token validation
+		token := c.GetHeader("Authorization")
+		if token == "" {
+			c.JSON(401, ErrorResponse{Error: "Unauthorized"})
+			c.Abort()
+			return
+		}
+		
+		// Validate token
+		// ... token validation logic
+		
+		c.Next()
+	}
+}
+
+// LoggingMiddleware provides logging for {{.ServiceTitle}} routes
+func LoggingMiddleware() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		// Log request
+		// ... logging logic
+		
+		c.Next()
+		
+		// Log response
+		// ... response logging logic
+	}
+}
+
+// RateLimitMiddleware provides rate limiting for {{.ServiceTitle}} routes
+func RateLimitMiddleware() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		// Implement rate limiting logic
+		// Example: Check rate limit based on IP or user
+		
+		c.Next()
+	}
+} 
