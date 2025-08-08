@@ -1,0 +1,657 @@
+---
+alwaysApply: true
+---
+# Documentation Standards
+
+## Documentation Structure
+
+### 1. Documentation Organization
+All documentation must be placed in the `docs/` folder with the following structure:
+
+```
+docs/
+├── 01-overview/             # Project overview and getting started
+├── 02-architecture/         # Architecture decisions and patterns
+│   ├── 01-service-structure.md
+│   ├── 02-clean-architecture.md
+│   ├── 03-cqrs-pattern.md
+│   └── 04-service-structure-summary.md
+├── 03-development/          # Development setup and guidelines
+├── 04-deployment/           # Deployment procedures and configurations
+├── 05-testing/              # Testing strategies and examples
+├── 06-security/             # Security guidelines and best practices
+├── 07-performance/          # Performance optimization guides
+└── 08-services/             # Service-specific documentation
+    ├── 01-user-service/
+    ├── 02-product-service/
+    └── 03-auth-service/
+```
+
+### 2. Documentation Naming Convention
+- Use numbered prefixes for ordering: `01-`, `02-`, `03-`
+- Use kebab-case for folder and file names
+- Include descriptive names that indicate content
+- **DO NOT use versioning terms** like "enhanced", "new", "v2", "improved", "latest", etc.
+- **DO NOT use feature-specific terms** like "enhanced-layer-service", "new-architecture", "improved-pattern", etc.
+- Use generic, timeless names that describe the content
+- Examples of good names: `service-structure.md`, `clean-architecture.md`, `cqrs-pattern.md`
+- Examples of bad names: `enhanced-service-structure.md`, `new-architecture.md`, `improved-cqrs.md`
+- Create a separate changelog section at the bottom of each file for version history and upgrades
+
+## Documentation Update Process
+
+### BEFORE making any code changes:
+1. **Search for related documentation** in the `docs/` folder
+2. **Check for cross-references and mentions** in existing documentation
+3. **Update existing docs** if the change affects documented functionality
+4. **Create new docs** if introducing new concepts or patterns
+5. **Update service documentation** if changing service behavior
+6. **Verify documentation consistency** across all related files
+
+### DURING code changes:
+1. **Check for documentation references** in code comments and README files
+2. **Update inline documentation** if changing function signatures or behavior
+3. **Review API documentation** if modifying endpoints or data structures
+4. **Update configuration documentation** if changing config structures
+
+### AFTER making code changes:
+1. **Verify all related documentation** is up to date
+2. **Check for broken links** or references in documentation
+3. **Update changelog sections** in affected documentation files
+4. **Ensure documentation examples** match the current implementation
+5. **Review service-specific docs** in `docs/08-services/` if applicable
+
+## Documentation Content Standards
+
+### 1. Writing Style
+- Use clear, concise language
+- Include code examples where appropriate
+- Provide step-by-step instructions for complex procedures
+- Include troubleshooting sections
+- Keep documentation up-to-date with code changes
+
+### 2. Code Examples
+- Use proper syntax highlighting
+- Include complete, runnable examples
+- Show both good and bad practices
+- Update examples when code changes
+
+```go
+// ✅ GOOD: Complete example
+func CreateUser(ctx context.Context, req CreateUserRequest) (*User, error) {
+    // Validate input
+    if err := req.Validate(); err != nil {
+        return nil, fmt.Errorf("invalid request: %w", err)
+    }
+    
+    // Create user
+    user := &User{
+        ID:    uuid.New().String(),
+        Email: req.Email,
+        Name:  req.Name,
+    }
+    
+    // Save to repository
+    if err := repo.Create(ctx, user); err != nil {
+        return nil, fmt.Errorf("failed to create user: %w", err)
+    }
+    
+    return user, nil
+}
+```
+
+### 3. API Documentation
+- Document all public APIs
+- Include request/response examples
+- Document error codes and messages
+- Include authentication requirements
+- Show rate limiting information
+
+### 4. Configuration Documentation
+- Document all configuration options
+- Include default values
+- Show environment variable mappings
+- Provide configuration examples
+
+## Service Documentation
+
+### 1. Service Overview
+Each service should have:
+- **Purpose and responsibilities**
+- **Domain concepts and entities**
+- **API endpoints and methods**
+- **Configuration options**
+- **Dependencies and integrations**
+
+### 2. API Documentation
+- **Endpoint descriptions**
+- **Request/response schemas**
+- **Authentication requirements**
+- **Error responses**
+- **Rate limiting information**
+
+### 3. Database Schema
+- **Table structures**
+- **Indexes and constraints**
+- **Migration history**
+- **Data relationships**
+
+### 4. Deployment
+- **Environment requirements**
+- **Configuration variables**
+- **Health check endpoints**
+- **Monitoring and alerting**
+
+## README Files
+
+### 1. Project README
+- **Project overview and purpose**
+- **Technology stack**
+- **Getting started guide**
+- **Development setup**
+- **Deployment instructions**
+- **Contributing guidelines**
+
+### 2. Service README
+- **Service purpose and scope**
+- **API documentation**
+- **Configuration options**
+- **Development setup**
+- **Testing instructions**
+
+### 3. Package README
+- **Package purpose**
+- **Usage examples**
+- **API documentation**
+- **Dependencies**
+
+## Documentation Maintenance
+
+### 1. Regular Reviews
+- Review documentation monthly
+- Update outdated information
+- Remove deprecated content
+- Add missing documentation
+
+### 2. Version Control
+- Track documentation changes in git
+- Use meaningful commit messages
+- Tag documentation releases
+- Maintain changelog
+
+### 3. Quality Assurance
+- Check for broken links
+- Verify code examples
+- Test configuration examples
+- Review for accuracy
+
+## Documentation Tools
+
+### 1. Markdown
+- Use standard markdown syntax
+- Include proper headings and structure
+- Use code blocks with language specification
+- Include tables for structured information
+
+### 2. Diagrams
+- Use Mermaid for flow diagrams
+- Include architecture diagrams
+- Show data flow and relationships
+- Keep diagrams simple and clear
+
+### 3. Code Documentation
+- Use godoc comments
+- Include examples in comments
+- Document exported functions and types
+- Keep comments up to date
+
+## Best Practices
+
+### 1. Organization
+- Group related documentation together
+- Use consistent naming conventions
+- Maintain clear hierarchy
+- Avoid duplication
+
+### 2. Content
+- Write for the target audience
+- Include practical examples
+- Provide troubleshooting guides
+- Keep content current
+
+### 3. Accessibility
+- Use clear headings and structure
+- Include alt text for images
+- Use descriptive link text
+- Ensure readability
+
+### 4. Maintenance
+- Review and update regularly
+- Remove outdated information
+- Add missing documentation
+- Verify accuracy
+
+## Common Documentation Patterns
+
+### 1. Getting Started
+```markdown
+# Getting Started
+
+## Prerequisites
+- Go 1.23.4 or higher
+- PostgreSQL 13 or higher
+- Redis 6 or higher
+
+## Installation
+1. Clone the repository
+2. Install dependencies
+3. Configure environment
+4. Run migrations
+5. Start the application
+
+## Quick Start
+```bash
+make setup
+make run
+```
+```
+
+### 2. API Documentation
+```markdown
+# User Service API
+
+## Endpoints
+
+### Create User
+`POST /api/v1/users`
+
+**Request Body:**
+```json
+{
+  "email": "user@example.com",
+  "name": "John Doe"
+}
+```
+
+**Response:**
+```json
+{
+  "id": "uuid",
+  "email": "user@example.com",
+  "name": "John Doe",
+  "created_at": "2024-01-01T00:00:00Z"
+}
+```
+```
+
+### 3. Configuration
+```markdown
+# Configuration
+
+## Environment Variables
+
+| Variable | Description | Default | Required |
+|----------|-------------|---------|----------|
+| `DB_HOST` | Database host | `localhost` | Yes |
+| `DB_PORT` | Database port | `5432` | No |
+| `DB_NAME` | Database name | `app` | Yes |
+| `DB_USER` | Database user | - | Yes |
+| `DB_PASSWORD` | Database password | - | Yes |
+```
+# Documentation Standards
+
+## Documentation Structure
+
+### 1. Documentation Organization
+All documentation must be placed in the `docs/` folder with the following structure:
+
+```
+docs/
+├── 01-overview/             # Project overview and getting started
+├── 02-architecture/         # Architecture decisions and patterns
+│   ├── 01-service-structure.md
+│   ├── 02-clean-architecture.md
+│   ├── 03-cqrs-pattern.md
+│   └── 04-service-structure-summary.md
+├── 03-development/          # Development setup and guidelines
+├── 04-deployment/           # Deployment procedures and configurations
+├── 05-testing/              # Testing strategies and examples
+├── 06-security/             # Security guidelines and best practices
+├── 07-performance/          # Performance optimization guides
+└── 08-services/             # Service-specific documentation
+    ├── 01-user-service/
+    ├── 02-product-service/
+    └── 03-auth-service/
+```
+
+### 2. Documentation Naming Convention
+- Use numbered prefixes for ordering: `01-`, `02-`, `03-`
+- Use kebab-case for folder and file names
+- Include descriptive names that indicate content
+- **DO NOT use versioning terms** like "enhanced", "new", "v2", "improved", "latest", etc.
+- **DO NOT use feature-specific terms** like "enhanced-layer-service", "new-architecture", "improved-pattern", etc.
+- Use generic, timeless names that describe the content
+- Examples of good names: `service-structure.md`, `clean-architecture.md`, `cqrs-pattern.md`
+- Examples of bad names: `enhanced-service-structure.md`, `new-architecture.md`, `improved-cqrs.md`
+- Create a separate changelog section at the bottom of each file for version history and upgrades
+
+## Documentation Update Process
+
+### BEFORE making any code changes:
+1. **Search for related documentation** in the `docs/` folder
+2. **Check for cross-references and mentions** in existing documentation
+3. **Update existing docs** if the change affects documented functionality
+4. **Create new docs** if introducing new concepts or patterns
+5. **Update service documentation** if changing service behavior
+6. **Verify documentation consistency** across all related files
+
+### DURING code changes:
+1. **Check for documentation references** in code comments and README files
+2. **Update inline documentation** if changing function signatures or behavior
+3. **Review API documentation** if modifying endpoints or data structures
+4. **Update configuration documentation** if changing config structures
+
+### AFTER making code changes:
+1. **Verify all related documentation** is up to date
+2. **Check for broken links** or references in documentation
+3. **Update changelog sections** in affected documentation files
+4. **Ensure documentation examples** match the current implementation
+5. **Review service-specific docs** in `docs/08-services/` if applicable
+
+## Documentation Content Standards
+
+### 1. Writing Style
+- Use clear, concise language
+- Include code examples where appropriate
+- Provide step-by-step instructions for complex procedures
+- Include troubleshooting sections
+- Keep documentation up-to-date with code changes
+
+### 2. Code Examples
+- Use proper syntax highlighting
+- Include complete, runnable examples
+- Show both good and bad practices
+- Update examples when code changes
+
+```go
+// ✅ GOOD: Complete example
+func CreateUser(ctx context.Context, req CreateUserRequest) (*User, error) {
+    // Validate input
+    if err := req.Validate(); err != nil {
+        return nil, fmt.Errorf("invalid request: %w", err)
+    }
+    
+    // Create user
+    user := &User{
+        ID:    uuid.New().String(),
+        Email: req.Email,
+        Name:  req.Name,
+    }
+    
+    // Save to repository
+    if err := repo.Create(ctx, user); err != nil {
+        return nil, fmt.Errorf("failed to create user: %w", err)
+    }
+    
+    return user, nil
+}
+```
+
+### 3. API Documentation
+- Document all public APIs
+- Include request/response examples
+- Document error codes and messages
+- Include authentication requirements
+- Show rate limiting information
+
+### 4. Configuration Documentation
+- Document all configuration options
+- Include default values
+- Show environment variable mappings
+- Provide configuration examples
+
+## Service Documentation
+
+### 1. Service Overview
+Each service should have:
+- **Purpose and responsibilities**
+- **Domain concepts and entities**
+- **API endpoints and methods**
+- **Configuration options**
+- **Dependencies and integrations**
+
+### 2. API Documentation
+- **Endpoint descriptions**
+- **Request/response schemas**
+- **Authentication requirements**
+- **Error responses**
+- **Rate limiting information**
+
+### 3. Database Schema
+- **Table structures**
+- **Indexes and constraints**
+- **Migration history**
+- **Data relationships**
+
+### 4. Deployment
+- **Environment requirements**
+- **Configuration variables**
+- **Health check endpoints**
+- **Monitoring and alerting**
+
+## README Files
+
+### 1. Project README
+- **Project overview and purpose**
+- **Technology stack**
+- **Getting started guide**
+- **Development setup**
+- **Deployment instructions**
+- **Contributing guidelines**
+
+### 2. Service README
+- **Service purpose and scope**
+- **API documentation**
+- **Configuration options**
+- **Development setup**
+- **Testing instructions**
+
+### 3. Package README
+- **Package purpose**
+- **Usage examples**
+- **API documentation**
+- **Dependencies**
+
+## Documentation Maintenance
+
+### 1. Regular Reviews
+- Review documentation monthly
+- Update outdated information
+- Remove deprecated content
+- Add missing documentation
+
+### 2. Version Control
+- Track documentation changes in git
+- Use meaningful commit messages
+- Tag documentation releases
+- Maintain changelog
+
+### 3. Quality Assurance
+- Check for broken links
+- Verify code examples
+- Test configuration examples
+- Review for accuracy
+
+## Documentation Tools
+
+### 1. Markdown
+- Use standard markdown syntax
+- Include proper headings and structure
+- Use code blocks with language specification
+- Include tables for structured information
+
+### 2. Diagrams
+- Use Mermaid for flow diagrams
+- Include architecture diagrams
+- Show data flow and relationships
+- Keep diagrams simple and clear
+
+### 3. Code Documentation
+- Use godoc comments
+- Include examples in comments
+- Document exported functions and types
+- Keep comments up to date
+
+## Best Practices
+
+### 1. Organization
+- Group related documentation together
+- Use consistent naming conventions
+- Maintain clear hierarchy
+- Avoid duplication
+
+### 2. Content
+- Write for the target audience
+- Include practical examples
+- Provide troubleshooting guides
+- Keep content current
+
+### 3. Accessibility
+- Use clear headings and structure
+- Include alt text for images
+- Use descriptive link text
+- Ensure readability
+
+### 4. Maintenance
+- Review and update regularly
+- Remove outdated information
+- Add missing documentation
+- Verify accuracy
+
+## Common Documentation Patterns
+
+### 1. Getting Started
+```markdown
+# Getting Started
+
+## Prerequisites
+- Go 1.23.4 or higher
+- PostgreSQL 13 or higher
+- Redis 6 or higher
+
+## Installation
+1. Clone the repository
+2. Install dependencies
+3. Configure environment
+4. Run migrations
+5. Start the application
+
+## Quick Start
+```bash
+make setup
+make run
+```
+```
+
+### 2. API Documentation
+```markdown
+# User Service API
+
+## Endpoints
+
+### Create User
+`POST /api/v1/users`
+
+**Request Body:**
+```json
+{
+  "email": "user@example.com",
+  "name": "John Doe"
+}
+```
+
+**Response:**
+```json
+{
+  "id": "uuid",
+  "email": "user@example.com",
+  "name": "John Doe",
+  "created_at": "2024-01-01T00:00:00Z"
+}
+```
+```
+
+### 3. Configuration
+```markdown
+# Configuration
+
+## Environment Variables
+
+| Variable | Description | Default | Required |
+|----------|-------------|---------|----------|
+| `DB_HOST` | Database host | `localhost` | Yes |
+| `DB_PORT` | Database port | `5432` | No |
+| `DB_NAME` | Database name | `app` | Yes |
+| `DB_USER` | Database user | - | Yes |
+| `DB_PASSWORD` | Database password | - | Yes |
+```
+
+## Documentation Organization Rules
+
+### 1. Hierarchical Structure
+- **Always maintain the numbered hierarchy**: 01-overview, 02-architecture, 03-development, etc.
+- **Each section should have a clear purpose** and not overlap with other sections
+- **Subsections should be logically grouped** within their parent section
+- **Use consistent depth**: Don't mix 2-level and 4-level hierarchies
+
+### 2. Content Placement Guidelines
+- **Overview content** goes in `01-overview/` - project introduction, getting started, basic concepts
+- **Architecture decisions** go in `02-architecture/` - design patterns, principles, structural decisions
+- **Development practices** go in `03-development/` - setup, workflows, coding standards
+- **Operational concerns** go in `04-deployment/`, `05-testing/`, `06-security/`, `07-performance/`
+- **Service-specific docs** go in `08-services/` - detailed documentation for each service
+
+### 3. File Organization Rules
+- **One concept per file**: Don't mix multiple unrelated topics in a single file
+- **Use descriptive filenames**: The filename should clearly indicate the content
+- **Maintain logical flow**: Related concepts should be in adjacent files
+- **Cross-reference appropriately**: Use links to reference related content instead of duplicating
+
+### 4. Content Quality Standards
+- **Accuracy**: All documentation must reflect the current state of the codebase
+- **Completeness**: Each documented feature should have complete information
+- **Clarity**: Use simple, clear language; avoid jargon when possible
+- **Consistency**: Use consistent terminology and formatting throughout
+- **Currency**: Keep documentation updated with code changes
+
+### 5. Documentation Audit Checklist
+When auditing documentation, check for:
+- **Structural Issues**:
+  - Files in wrong sections
+  - Missing numbered prefixes
+  - Inconsistent naming conventions
+  - Broken cross-references
+- **Content Issues**:
+  - Outdated information
+  - Incomplete examples
+  - Unclear explanations
+  - Missing documentation for features
+- **Quality Issues**:
+  - Duplicate content
+  - Contradictory information
+  - Poor formatting
+  - Missing code examples
+
+### 6. Documentation Maintenance Rules
+- **Regular audits**: Conduct documentation audits monthly or after major releases
+- **Update triggers**: Update docs when adding new features, changing APIs, or modifying architecture
+- **Version tracking**: Use changelog sections to track documentation changes
+- **Review process**: Have documentation reviewed alongside code changes
+- **Feedback loop**: Collect and incorporate feedback on documentation quality
+
+### 7. Service Documentation Standards
+- **Each service** should have its own directory in `08-services/`
+- **Service docs** should include: overview, architecture, API reference, examples
+- **Keep service docs** focused on service-specific concerns
+- **Cross-reference** general patterns and principles from main documentation
+- **Maintain consistency** across all service documentation

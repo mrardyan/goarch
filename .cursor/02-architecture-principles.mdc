@@ -1,0 +1,565 @@
+---
+alwaysApply: true
+---
+# Architecture Principles
+
+## Clean Architecture Dependencies
+
+### 1. Dependency Direction
+- **Low-level layers should NOT depend on high-level layers**
+- **Dependencies point inward**: Domain → Application → Infrastructure → Delivery
+- **Domain layer has zero external dependencies**
+- **Infrastructure layer implements domain interfaces**
+- **Use abstractions/interfaces, not concrete implementations**
+
+### 2. Dependency Inversion Principle
+```go
+// ✅ GOOD: Depend on abstractions
+type UserRepository interface {
+    Create(ctx context.Context, user *User) error
+    GetByID(ctx context.Context, id string) (*User, error)
+}
+
+type UserService struct {
+    repo UserRepository  // Interface, not concrete implementation
+}
+
+// ❌ BAD: Depend on concrete implementations
+type UserService struct {
+    repo *PostgreSQLUserRepository  // Concrete implementation
+}
+```
+
+### 3. Interface Segregation
+- Create focused, single-purpose interfaces
+- Avoid large interfaces that force implementations to depend on methods they don't use
+- Prefer composition over inheritance
+
+```go
+// ✅ GOOD: Focused interfaces
+type UserReader interface {
+    GetByID(ctx context.Context, id string) (*User, error)
+    List(ctx context.Context, limit, offset int) ([]*User, error)
+}
+
+type UserWriter interface {
+    Create(ctx context.Context, user *User) error
+    Update(ctx context.Context, user *User) error
+    Delete(ctx context.Context, id string) error
+}
+
+// Combine when needed
+type UserRepository interface {
+    UserReader
+    UserWriter
+}
+```
+
+## Domain-Driven Design (DDD)
+
+### 1. Domain Layer
+- Keep domain logic separate from infrastructure
+- Use rich domain models with business rules
+- Implement domain events for side effects
+- Use value objects for immutable data
+
+### 2. Service Boundaries
+- Each service has clear boundaries and responsibilities
+- Services communicate through well-defined interfaces
+- Avoid tight coupling between services
+- Use domain events for cross-service communication
+
+### 3. Value Objects
+- Use value objects for immutable data
+- Implement proper equality and validation
+- Keep value objects focused and cohesive
+
+```go
+// ✅ GOOD: Value object
+type Email struct {
+    value string
+}
+
+func NewEmail(value string) (*Email, error) {
+    if !isValidEmail(value) {
+        return nil, errors.New("invalid email format")
+    }
+    return &Email{value: value}, nil
+}
+
+func (e Email) String() string {
+    return e.value
+}
+```
+
+## SOLID Principles
+
+### 1. Single Responsibility Principle (SRP)
+- Each service has one reason to change
+- Keep functions and methods focused on a single responsibility
+- Separate concerns clearly between layers
+
+### 2. Open/Closed Principle (OCP)
+- Extend functionality without modifying existing code
+- Use interfaces and abstractions for extensibility
+- Design for future changes
+
+### 3. Liskov Substitution Principle (LSP)
+- Use interfaces properly
+- Ensure implementations can be substituted without breaking behavior
+- Design contracts that are clear and consistent
+
+### 4. Interface Segregation Principle (ISP)
+- Keep interfaces focused and small
+- Don't force implementations to depend on methods they don't use
+- Create specific interfaces for specific use cases
+
+### 5. Dependency Inversion Principle (DIP)
+- Depend on abstractions, not concretions
+- High-level modules should not depend on low-level modules
+- Both should depend on abstractions
+
+## Service Architecture
+
+### 1. Service Structure
+Each service follows an enhanced layered architecture with CQRS support:
+
+```
+{service-name}/
+├── domain/                    # Pure business rules
+│   ├── entity/                # Core entities (Account, Role, etc)
+│   ├── repository/            # Abstract interfaces (ports)
+│   ├── service/               # Domain service logic (pure functions)
+│   └── types/                 # Value objects, enums, primitives
+│
+├── application/              # Use case orchestration (commands/queries)
+│   ├── {subdomain}/          # E.g. account/, role/, etc
+│       ├── command.go
+│       ├── query.go
+│       └── dto.go
+│
+├── delivery/                 # Controller / handler layer
+│   └── http/                 # HTTP handlers & routing
+│       ├── handler.go
+│       ├── router.go
+│       └── middleware.go
+│
+├── infrastructure/           # Adapter layer (DB, cache, etc)
+│   ├── postgres/             # DB repositories
+│   ├── redis/                # Cache layer
+│   ├── emailservice/         # External service clients
+│   └── persistence.go        # Optional DB setup logic
+│
+├── config/                   # Service-specific config structures
+│   └── config.go
+│
+├── init/                     # Service initialization logic (DI wiring)
+│   └── init.go
+│
+└── module.go                 # Optional facade to expose
+```
+
+### 2. CQRS Pattern
+- Separate read and write operations
+- Use different models for commands and queries
+- Optimize read and write paths independently
+- Maintain consistency through domain events
+
+### 3. Repository Pattern
+```go
+type UserRepository interface {
+    Create(ctx context.Context, user *User) error
+    GetByID(ctx context.Context, id string) (*User, error)
+    Update(ctx context.Context, user *User) error
+    Delete(ctx context.Context, id string) error
+}
+```
+
+### 4. Service Pattern
+```go
+type UserService interface {
+    CreateUser(ctx context.Context, req CreateUserRequest) (*User, error)
+    GetUser(ctx context.Context, id string) (*User, error)
+    UpdateUser(ctx context.Context, req UpdateUserRequest) (*User, error)
+}
+```
+
+## Error Handling
+
+### 1. Domain Errors
+- Use custom error types for domain errors
+- Provide meaningful error messages
+- Include context in error responses
+
+```go
+type DomainError struct {
+    Code    string
+    Message string
+    Details map[string]interface{}
+}
+
+func (e DomainError) Error() string {
+    return fmt.Sprintf("[%s] %s", e.Code, e.Message)
+}
+```
+
+### 2. Error Propagation
+- Return errors from lower layers
+- Add context when wrapping errors
+- Log errors at the delivery layer
+
+```go
+// Good error handling
+if err != nil {
+    return fmt.Errorf("failed to create user: %w", err)
+}
+```
+
+## Logging
+
+### 1. Structured Logging
+Use structured logging with context:
+
+```go
+logger.Info("User created",
+    zap.String("user_id", user.ID),
+    zap.String("email", user.Email),
+)
+```
+
+### 2. Log Levels
+- **DEBUG**: Detailed information for debugging
+- **INFO**: General information about application flow
+- **WARN**: Warning messages for potential issues
+- **ERROR**: Error messages for actual problems
+- **FATAL**: Critical errors that require immediate attention
+
+## Configuration
+
+### 1. Configuration Management
+- Use Viper for configuration management
+- Support multiple config sources (env vars, files, etc.)
+- Use environment-specific config files
+- Validate configuration on startup
+
+### 2. Environment Variables
+- Use environment variables for sensitive data
+- Support different environments (dev, staging, prod)
+- Use secrets management for production
+
+## Dependency Injection
+
+### 1. DI Container
+- Use the bootstrap container for DI
+- Register services in the container
+- Use interfaces for dependencies
+- Make testing easier with DI
+
+### 2. Service Registration
+```go
+// Register services in DI container
+container.Register("userService", func() UserService {
+    return NewUserService(userRepo)
+})
+```
+
+## Performance Considerations
+
+### 1. Database
+- Use proper indexing
+- Implement connection pooling
+- Use read replicas for read-heavy workloads
+- Implement caching strategies
+
+### 2. Caching
+- Use Redis for session storage and caching
+- Implement cache invalidation strategies
+- Use appropriate cache TTLs
+- Monitor cache hit rates
+
+### 3. Monitoring
+- Use structured logging
+- Implement health checks
+- Add metrics collection
+- Set up alerting
+# Architecture Principles
+
+## Clean Architecture Dependencies
+
+### 1. Dependency Direction
+- **Low-level layers should NOT depend on high-level layers**
+- **Dependencies point inward**: Domain → Application → Infrastructure → Delivery
+- **Domain layer has zero external dependencies**
+- **Infrastructure layer implements domain interfaces**
+- **Use abstractions/interfaces, not concrete implementations**
+
+### 2. Dependency Inversion Principle
+```go
+// ✅ GOOD: Depend on abstractions
+type UserRepository interface {
+    Create(ctx context.Context, user *User) error
+    GetByID(ctx context.Context, id string) (*User, error)
+}
+
+type UserService struct {
+    repo UserRepository  // Interface, not concrete implementation
+}
+
+// ❌ BAD: Depend on concrete implementations
+type UserService struct {
+    repo *PostgreSQLUserRepository  // Concrete implementation
+}
+```
+
+### 3. Interface Segregation
+- Create focused, single-purpose interfaces
+- Avoid large interfaces that force implementations to depend on methods they don't use
+- Prefer composition over inheritance
+
+```go
+// ✅ GOOD: Focused interfaces
+type UserReader interface {
+    GetByID(ctx context.Context, id string) (*User, error)
+    List(ctx context.Context, limit, offset int) ([]*User, error)
+}
+
+type UserWriter interface {
+    Create(ctx context.Context, user *User) error
+    Update(ctx context.Context, user *User) error
+    Delete(ctx context.Context, id string) error
+}
+
+// Combine when needed
+type UserRepository interface {
+    UserReader
+    UserWriter
+}
+```
+
+## Domain-Driven Design (DDD)
+
+### 1. Domain Layer
+- Keep domain logic separate from infrastructure
+- Use rich domain models with business rules
+- Implement domain events for side effects
+- Use value objects for immutable data
+
+### 2. Service Boundaries
+- Each service has clear boundaries and responsibilities
+- Services communicate through well-defined interfaces
+- Avoid tight coupling between services
+- Use domain events for cross-service communication
+
+### 3. Value Objects
+- Use value objects for immutable data
+- Implement proper equality and validation
+- Keep value objects focused and cohesive
+
+```go
+// ✅ GOOD: Value object
+type Email struct {
+    value string
+}
+
+func NewEmail(value string) (*Email, error) {
+    if !isValidEmail(value) {
+        return nil, errors.New("invalid email format")
+    }
+    return &Email{value: value}, nil
+}
+
+func (e Email) String() string {
+    return e.value
+}
+```
+
+## SOLID Principles
+
+### 1. Single Responsibility Principle (SRP)
+- Each service has one reason to change
+- Keep functions and methods focused on a single responsibility
+- Separate concerns clearly between layers
+
+### 2. Open/Closed Principle (OCP)
+- Extend functionality without modifying existing code
+- Use interfaces and abstractions for extensibility
+- Design for future changes
+
+### 3. Liskov Substitution Principle (LSP)
+- Use interfaces properly
+- Ensure implementations can be substituted without breaking behavior
+- Design contracts that are clear and consistent
+
+### 4. Interface Segregation Principle (ISP)
+- Keep interfaces focused and small
+- Don't force implementations to depend on methods they don't use
+- Create specific interfaces for specific use cases
+
+### 5. Dependency Inversion Principle (DIP)
+- Depend on abstractions, not concretions
+- High-level modules should not depend on low-level modules
+- Both should depend on abstractions
+
+## Service Architecture
+
+### 1. Service Structure
+Each service follows an enhanced layered architecture with CQRS support:
+
+```
+{service-name}/
+├── domain/                    # Pure business rules
+│   ├── entity/                # Core entities (Account, Role, etc)
+│   ├── repository/            # Abstract interfaces (ports)
+│   ├── service/               # Domain service logic (pure functions)
+│   └── types/                 # Value objects, enums, primitives
+│
+├── application/              # Use case orchestration (commands/queries)
+│   ├── {subdomain}/          # E.g. account/, role/, etc
+│       ├── command.go
+│       ├── query.go
+│       └── dto.go
+│
+├── delivery/                 # Controller / handler layer
+│   └── http/                 # HTTP handlers & routing
+│       ├── handler.go
+│       ├── router.go
+│       └── middleware.go
+│
+├── infrastructure/           # Adapter layer (DB, cache, etc)
+│   ├── postgres/             # DB repositories
+│   ├── redis/                # Cache layer
+│   ├── emailservice/         # External service clients
+│   └── persistence.go        # Optional DB setup logic
+│
+├── config/                   # Service-specific config structures
+│   └── config.go
+│
+├── init/                     # Service initialization logic (DI wiring)
+│   └── init.go
+│
+└── module.go                 # Optional facade to expose
+```
+
+### 2. CQRS Pattern
+- Separate read and write operations
+- Use different models for commands and queries
+- Optimize read and write paths independently
+- Maintain consistency through domain events
+
+### 3. Repository Pattern
+```go
+type UserRepository interface {
+    Create(ctx context.Context, user *User) error
+    GetByID(ctx context.Context, id string) (*User, error)
+    Update(ctx context.Context, user *User) error
+    Delete(ctx context.Context, id string) error
+}
+```
+
+### 4. Service Pattern
+```go
+type UserService interface {
+    CreateUser(ctx context.Context, req CreateUserRequest) (*User, error)
+    GetUser(ctx context.Context, id string) (*User, error)
+    UpdateUser(ctx context.Context, req UpdateUserRequest) (*User, error)
+}
+```
+
+## Error Handling
+
+### 1. Domain Errors
+- Use custom error types for domain errors
+- Provide meaningful error messages
+- Include context in error responses
+
+```go
+type DomainError struct {
+    Code    string
+    Message string
+    Details map[string]interface{}
+}
+
+func (e DomainError) Error() string {
+    return fmt.Sprintf("[%s] %s", e.Code, e.Message)
+}
+```
+
+### 2. Error Propagation
+- Return errors from lower layers
+- Add context when wrapping errors
+- Log errors at the delivery layer
+
+```go
+// Good error handling
+if err != nil {
+    return fmt.Errorf("failed to create user: %w", err)
+}
+```
+
+## Logging
+
+### 1. Structured Logging
+Use structured logging with context:
+
+```go
+logger.Info("User created",
+    zap.String("user_id", user.ID),
+    zap.String("email", user.Email),
+)
+```
+
+### 2. Log Levels
+- **DEBUG**: Detailed information for debugging
+- **INFO**: General information about application flow
+- **WARN**: Warning messages for potential issues
+- **ERROR**: Error messages for actual problems
+- **FATAL**: Critical errors that require immediate attention
+
+## Configuration
+
+### 1. Configuration Management
+- Use Viper for configuration management
+- Support multiple config sources (env vars, files, etc.)
+- Use environment-specific config files
+- Validate configuration on startup
+
+### 2. Environment Variables
+- Use environment variables for sensitive data
+- Support different environments (dev, staging, prod)
+- Use secrets management for production
+
+## Dependency Injection
+
+### 1. DI Container
+- Use the bootstrap container for DI
+- Register services in the container
+- Use interfaces for dependencies
+- Make testing easier with DI
+
+### 2. Service Registration
+```go
+// Register services in DI container
+container.Register("userService", func() UserService {
+    return NewUserService(userRepo)
+})
+```
+
+## Performance Considerations
+
+### 1. Database
+- Use proper indexing
+- Implement connection pooling
+- Use read replicas for read-heavy workloads
+- Implement caching strategies
+
+### 2. Caching
+- Use Redis for session storage and caching
+- Implement cache invalidation strategies
+- Use appropriate cache TTLs
+- Monitor cache hit rates
+
+### 3. Monitoring
+- Use structured logging
+- Implement health checks
+- Add metrics collection
+- Set up alerting

@@ -1,0 +1,133 @@
+# Communication Patterns
+
+## Prompt Prefix Rules
+
+### `discussion:` or `ask:`
+- **Purpose**: Brainstorming, planning, or seeking advice without making changes
+- **Response**: Provide analysis, pros-cons, suggestions, and recommendations
+- **Action**: No file edits or code changes
+- **Focus**: Architecture decisions, best practices, Go idioms, and design patterns
+
+### `propose:`
+- **Purpose**: Present an idea or approach for review and feedback
+- **Response**: Evaluate the proposal considering Go idioms and best practices. Provide pro-cons.
+- **Action**: No file edits, provide constructive feedback
+- **Focus**: Code quality, maintainability, performance, and Go conventions
+
+### `plan:`
+- **Purpose**: Create a structured action plan for implementation
+- **Response**: Generate a detailed plan with priorities and checklists
+- **Action**: Create `plan.md` in `.temp` directory with clear action items
+- **Focus**: Step-by-step implementation strategy with tracking
+
+### `continue:`
+- **Purpose**: Resume work based on existing plan
+- **Response**: Check `.temp/plan.md` and continue from last checkpoint
+- **Action**: Execute next steps in the plan
+- **Focus**: Progress tracking and implementation continuation
+
+## Commit Commands
+
+### `commit`
+- **Purpose**: Commit all changes per changes (individual commits for each change)
+- **Response**: Create separate commits for each logical change following commit order strategy
+- **Action**: Execute git commits following the commit order: docs → config → domain → infrastructure → application → delivery → integration
+- **Focus**: Granular commit history with clear separation of concerns
+
+### `commit once`
+- **Purpose**: Commit all changes at once (single commit)
+- **Response**: Create one comprehensive commit with all changes
+- **Action**: Execute single git commit with all modifications
+- **Focus**: Bulk commit for rapid development or when changes are tightly coupled
+
+### `commit <module/layer/context/feature>`
+- **Purpose**: Commit only mentioned module/layer/context/feature
+- **Response**: Commit changes specific to the specified module, layer, context, or feature
+- **Action**: Execute git commit for targeted changes only
+- **Focus**: Selective commits for specific components (e.g., `commit user-service`, `commit domain`, `commit docs`)
+
+### `explain <context (optional)>`
+- **Purpose**: Explain the last changes by its optional context and stop any running work without losing progress
+- **Response**: Provide detailed explanation of recent changes with optional context focus
+- **Action**: Pause current work, explain changes, maintain progress state
+- **Focus**: Understanding changes, context-specific explanations, progress preservation
+- **Examples**:
+  - `explain` - Explain all recent changes
+  - `explain architecture` - Explain changes from architectural perspective
+  - `explain user-service` - Explain changes specific to user service
+  - `explain performance` - Explain changes from performance perspective
+
+### `retry`
+- **Purpose**: Retry the last task with the same context and parameters
+- **Response**: Re-execute the previous task using the last known context and configuration
+- **Action**: Repeat the most recent operation with identical parameters and context
+- **Focus**: Task repetition, context preservation, error recovery
+- **Use Cases**:
+  - Retry failed operations with the same parameters
+  - Re-run successful operations with identical context
+  - Continue interrupted tasks from the last known state
+  - Debug and troubleshoot by repeating the exact same operation
+
+### `audit docs`
+- **Purpose**: Comprehensive documentation audit and restructuring recommendations
+- **Response**: Analyze existing documentation structure, identify issues, and provide recommendations
+- **Action**: 
+  1. Scan all documentation files in `docs/` directory
+  2. Check for outdated content against current codebase
+  3. Identify structural issues, redundancies, and gaps
+  4. Provide specific recommendations for restructuring, merging, or removing docs
+  5. Identify unclear or ambiguous code examples and suggest improvements
+  6. Create a comprehensive audit report in `.temp/docs-audit-report.md`
+- **Focus**: Documentation quality, consistency, accuracy, and maintainability
+- **Audit Areas**:
+  - **Structure Analysis**: Check if docs follow the established structure (01-overview, 02-architecture, etc.)
+  - **Content Accuracy**: Verify if documentation matches current codebase implementation
+  - **Code Examples**: Review code snippets for clarity, accuracy, and best practices
+  - **Cross-References**: Check for broken links and inconsistent references
+  - **Redundancy**: Identify duplicate or overlapping content
+  - **Completeness**: Find missing documentation for existing features
+  - **Clarity**: Identify unclear or ambiguous explanations
+- **Output**: Detailed audit report with actionable recommendations for each issue found
+
+## Plan Management
+
+- Plans are stored in `.temp/plan.md` with clear priorities and checklists
+- Each plan item should be trackable and actionable
+- Update plan progress as work continues
+- Suggest new chat if context is full
+- **IMPORTANT**: `.temp` directory is hidden and may not be accessible via file reading tools
+- **Always use terminal commands** to access `.temp` files: `cat .temp/plan.md`, `ls -la .temp/`, etc.
+- **Never rely on file reading tools** for `.temp` directory access
+- **Plan Completion**: When all tasks in `plan.md` are completed, confirm with the user before deleting the plan file
+- **Deletion Confirmation**: Use `rm .temp/plan.md` only after user confirms all tasks are done and they want to clean up
+
+## Temporary File Management
+
+### `.temp` Directory Usage
+- **Purpose**: Centralized location for all temporary files and experimental work
+- **Response**: Always use `.temp/` directory for any temporary files, test cases, or experimental code
+- **Action**: Create files in `.temp/` with descriptive names and clear organization
+- **Focus**: Keep main codebase clean and separate experimental work from production code
+
+### Temporary Unit Tests
+- **Purpose**: Create separate temporary unit tests for non-business logic or experimental technical logic
+- **Response**: Place temporary unit tests in `.temp/tests/` directory with clear naming
+- **Action**: Create `.temp/tests/` structure for experimental test cases
+- **Focus**: Isolate experimental tests from production test suite
+- **Examples**: 
+  - `.temp/tests/experimental-feature_test.go`
+  - `.temp/tests/performance-benchmark_test.go`
+  - `.temp/tests/technical-proof_test.go`
+
+### Temporary File Organization
+- **Structure**: Organize `.temp/` with clear subdirectories
+  - `.temp/plans/` - Planning documents and checklists
+  - `.temp/tests/` - Experimental and temporary test cases
+  - `.temp/experiments/` - Experimental code and prototypes
+  - `.temp/debug/` - Debug files and temporary logs
+- **Naming**: Use descriptive names with timestamps when appropriate
+- **Cleanup**: Regularly review and clean up temporary files
+- **Access**: Always use terminal commands to access `.temp/` directory
+
+- **Cleanup**: Regularly review and clean up temporary files
+- **Access**: Always use terminal commands to access `.temp/` directory
