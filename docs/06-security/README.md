@@ -584,6 +584,7 @@ func LogSecurityEvent(eventType, severity, message string, userID uint, ipAddres
 
 ## Related Documentation
 
+- [Runtime Secrets Management](runtime-secrets-guide.md) - How to keep secrets as runtime-only variables
 - [Architecture Documentation](../02-architecture/) - Security architecture
 - [API Documentation](../10-api-documentation/) - API security
 - [Development Guide](../03-development/) - Secure development practices
