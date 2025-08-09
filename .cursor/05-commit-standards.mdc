@@ -2,6 +2,7 @@
 alwaysApply: true
 ---
 # Commit Standards
+⚠️ **CRITICAL**: Always check this file before making commit
 
 ## Commit Message Template
 
