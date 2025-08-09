@@ -1,6 +1,9 @@
 # Temporary files
 .temp
 
+# Compiled binaries
+bin/
+
 # Environment files
 .env.development
 .env.staging
